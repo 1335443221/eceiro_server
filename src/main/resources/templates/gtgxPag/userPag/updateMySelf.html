@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>个人信息</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  
+  </head>
+  
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">个人信息</b></div>
+            <div class="box_center">
+              <form action="" id="userform" name="userform" class="jqtransform" method="post" enctype="multipart/form-data">
+                <table class="form_table pt15 pb15" width="760" border="0" cellpadding="0" cellspacing="0">
+                   <tr>
+                  <td class="td_right">头像：</td>
+                  <td>
+                   <input  type="hidden"  name="portrait" id="portrait" value="${myself.portrait}" class="input-text lh30" size="40">
+                  <span class="portraitFileSpan">
+                  <div class="fileDiv">
+                  <img alt="" src="${(myself.portrait)!'' }" style="width: 140px;height: 200px">
+                  </div>
+                   </span>
+                   <input type="file" id="portraitFile" onchange="addFile(this,'portraitFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                   
+                  
+                  <tr>
+                  <input type="hidden" name="id" value="${(myself.id)!'' }"/>
+                  <input type="hidden" name="department_id" value="${(myself.department_id)!'' }"/>
+                  <input type="hidden" name="group_id" value="${(myself.group_id)!'' }"/>
+                  <input type="hidden" name="role_id" value="${(myself.role_id)!'' }"/>
+                  <td class="td_right">姓名：</td>
+                  <td class=""> 
+                  <input type="text" value="${myself.user_name }" name="user_name" class="input-text lh30"/>
+                  </td>
+                  </tr>
+                  	<tr>
+                  <td class="td_right">邮箱：</td>
+                  <td class=""> 
+                   <input type="text" value="${myself.email }" name="email"  class="input-text lh30"/>
+                   </td>
+                </tr>
+                 <tr>
+                  <td class="td_right">电话：</td>
+                  <td class=""> 
+                   <input type="text" value="${myself.phone }" name="phone" class="input-text lh30" />
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">手机：</td>
+                  <td class=""> 
+                   <input type="text" value="${myself.cellphone }" name="cellphone" id="cellphoneid" class="input-text lh30" />
+                  </td>
+                </tr>
+                 <tr class="pwtr" id="pwtr2">
+                  <td class="td_right">密码：</td>
+                  <td class=""> 
+                    <input type="text" name="password" value="" class="input-text lh30" size="40">
+                    &nbsp;*  <span style="color: red;">用于用户登录               <!-- 密码6-18位数字小写字母组合 --></span>
+                  </td>
+                </tr>
+                <tr class="pwtr">
+                  <td class="td_right">确认密码：</td>
+                  <td class="">
+                    <input type="text" name="password2" value="" class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                
+                <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="save" class="btn btn82 btn_save2" value="确定"> 
+                     
+                     <#if activeAdmin.login_name=="test" || activeAdmin.login_name=="developer" || activeAdmin.login_name=="user">
+                     
+                     <#else>
+                     <input type="button" id="upps" style="" class="btn83 btn_res" value="修改密码">
+                     </#if>
+                     
+                   </td>
+                 </tr>
+                
+               </table>
+               </form>
+            </div>
+          </div>
+        </div>
+     </div>
+     
+ <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	function addFile(obj,Cname){  //上传文件到七牛  
+		var timestamp = (new Date()).getTime(); //时间戳
+		var formData = new FormData();
+        var file_obj = obj.files[0];
+        if(file_obj==null){  //没有选择文件 跳出方法
+        	return false;
+        }
+        var fileName=file_obj.name;
+        formData.append("token","${token}");  //token
+        formData.append("key","${prefix}"+timestamp+fileName);  //name
+        formData.append('file',file_obj);   //文件
+	    $.ajax({
+	        url:'http://up-z1.qiniu.com/',
+	        secureuri:false,
+	        type: 'POST',
+            data: formData,
+	        dataType: 'json',//返回数据的类型
+	        processData:false,  //
+            contentType: false, 
+	        success: function (data) {//上传成功
+	        	$('#'+Cname).val('');
+	        	$('.'+Cname+"Span").empty();
+	        	var url="${QiniuUrl}"+data.key;
+	        	var str ='';
+	        		str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+	        		'<img alt="" src="'+url+'" style="width: 140px;height: 200px">'+
+	        		'<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+	        	$('.'+Cname+"Span").append(str);
+	        	$("#portrait").val(url);
+	        }
+	    });
+}
+ 	
+ 	
+ 	$(function(){   
+ 		//文件删除按钮
+         $(document).on('click','.remove-file-btn',function () {
+         	if(confirm("确认删除么？")){
+         		$(this).closest('.fileDiv').remove();
+         	}
+         });
+ 		
+ 		$(".pwtr").hide();
+ 		
+ 		$("input").focus(function(){
+ 			  $("input").css("background-color","");
+ 			  $(this).css("background-color","#FFFFCC");
+ 			});
+         
+ 		
+ 		
+ 		
+ 		$("#cellphoneid").blur(function(){
+ 	   		var a=$("#cellphoneid").val();
+ 	   		if(a==null||a==""){
+ 	   		
+ 	  	 	}else{
+ 	  	 		$.ajax({
+ 				url:"/gtgx/checkCellphone",
+ 				data: {addcellphone:a,id:${myself.id}},
+ 				type:"post",
+ 				dataType:"text",
+ 				success:function(e){
+ 				if(e=="1"){
+ 					alert("手机号不能重复，请重新输入");
+ 					$("#cellphoneid").val("");
+ 				}
+ 				}
+ 		});
+ 		}
+ 	   	});
+ 		
+ 		
+ 		
+         $("#save").click(function(){
+         	if(userform.user_name.value==''){
+         		alert("姓名不能为空");
+         		return;
+         	}
+         	
+         	if($("#pwtr2").is(":hidden")){
+         		
+         	}else{
+         		if(userform.password.value==''){
+         			alert("请输入新密码");
+             		return;
+         		}
+         	}
+         	
+         	if(userform.cellphone.value==''){
+         		alert("手机号不能为空");
+         		return;
+         	}
+         	
+         	if(userform.password2.value!=userform.password.value){
+         		alert("两次密码输入不一样，请检查");
+         		return;
+         	}
+         	
+         	$("#userform").ajaxSubmit({
+     			url:"/gtgx/updateUserinfo",
+     			type:"post",
+     			dataType:"text",
+     			success:function(e){
+     			if(e=="1"){
+     				alert("修改信息成功");
+     				window.location.href="/gtgx/showMySelf?id="+${activeAdmin.id };
+     			}
+     			}
+     	});
+        	});
+         
+         
+         $("#upps").click(function(){
+         	if($("#upps").val()=="修改密码"){
+         		$("#upps").val("取消修改");
+         		$(".pwtr").show();
+         	}else{
+         		$("#upps").val("修改密码");
+         		$(".pwtr").hide();
+         	}
+         });
+         
+         
+    	 	});
+   	
+ 	</script> 
+  </body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">最新版本</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" width="960px;" border="0" cellpadding="0" cellspacing="0">
+                  <tr>
+                  <#if version??>
+                 	<input type="hidden" name="id" value="${version.id }"/>
+                   	</#if>
+                  <td class="td_right">版本号：</td>
+                  <td class="" style="color: red;font-size: 18px;">
+                      <b>${(version.version)!'' }</b>
+                  </td>
+                  	<tr>
+                  <td class="td_right">版本描述：</td>
+                  <td>
+                  <textarea rows="3" cols="20"  style="width: 500px;height: 180px;resize:none;border:none;width: 100%;word-break: break-all;overflow:auto;" readonly>${(version.description)!'' }</textarea>
+                  </td>
+                    </tr>
+                    <tr>
+                  <td class="td_right">app统一下载地址：</td>
+                  <td>
+                  ${(crcode.url)!'' }
+                  </td>
+                    </tr>
+                    <tr>
+                  <td class="td_right">扫描二维码下载：</td>
+                   <td>
+				  <img alt="${crcode.img_url}" src="${(crcode.img_url)!'' }" style="width: 200px;height: 200px;" >
+				  </td>
+                  
+                    </tr>
+                    <tr>
+                  <td class="td_right">是否强制更新：</td>
+                  <td>
+                  <#if '1' == version.is_force>否</#if>
+                  <#if '2' == version.is_force>是</#if>
+                  </td>
+                    </tr>
+                    <tr>
+                  <td class="td_right">上传时间：</td>
+                  <td>
+                  ${(version.upload_at)!'' }
+                  </td>
+                    </tr>
+                
+               </table>
+            </div>
+          </div>
+        </div>
+     </div>
+  </body>
+</html>

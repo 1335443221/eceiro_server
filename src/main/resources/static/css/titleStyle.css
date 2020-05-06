@@ -1,0 +1,11 @@
+.title_span{
+	width: 108px;
+	height: 17px;
+	font-size: 26px;
+	font-family: PingFangSC-Regular,PingFang SC;
+	font-weight: 400;
+	color: rgba(255,255,255,1);
+	line-height: 17px;
+	text-align: center;
+	padding-left: 560px;
+}

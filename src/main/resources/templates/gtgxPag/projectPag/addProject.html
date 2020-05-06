@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">新增工程</b></div>
+            <div class="box_center">
+              <form  class="jqtransform" method="post" name="userform" id="userform" enctype="multipart/form-data">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                  <tr>
+                  <td class="td_right">名称：</td>
+                  <td class=""> 
+                  <input type="text" name="name"  class="input-text lh30" size="40" >&nbsp;&nbsp;*
+                  </td>
+                  </tr>
+                  <tr>
+                  <td class="td_right">工程类型：</td>
+                  <td><select name="project_type" class="select" id="project_type"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<#list type_list as type_list>
+                  				<option value="${(type_list.id)!'' }">&nbsp;&nbsp;&nbsp;&nbsp;${type_list.name }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select>
+                                &nbsp;&nbsp;*
+                        		</td>
+                </tr>
+                  	<tr>
+                  <td class="td_right">工程位置:</td>
+                  <td><input type="text" name="location"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                 </tr>
+                  	<tr>
+                  <td class="td_right">施工单位:</td>
+                  <td><input type="text" name="construction_org"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                 </tr>
+                  	<tr>
+                  <td class="td_right">监理单位:</td>
+                  <td><input type="text" name="supervising_org"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                 </tr>
+                  	<tr>
+                  <td class="td_right">监理负责人:</td>
+                  <td><input type="text" name="supervisor"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                 </tr>
+                  	<tr>
+                  <td class="td_right">监理负责人电话:</td>
+                  <td><input type="text" name="supervisor_phone"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                </tr>
+                  	<tr>
+                  <td class="td_right">安全员/施工员：</td>
+                  <td><input type="text" name="constructor"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">项目经理:</td>
+                  <td><input type="text" name="PM"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">项目经理电话:</td>
+                  <td><input type="text" name="PM_phone"  class="input-text lh30" size="40">&nbsp;&nbsp;*
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">是否紧急施工：</td>
+                  <td><select name="is_urgency" class="select" id="is_urgency"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<option value="1">&nbsp;&nbsp;&nbsp;&nbsp;是&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<option value="0">&nbsp;&nbsp;&nbsp;&nbsp;否&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                        		</select>
+                                 &nbsp;&nbsp;*
+                        		</td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">签报文件:</td>
+                  <td>
+                  <span class="sign_fileFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="sign_fileFile"  onchange="addFile(this,'sign_fileFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">甲方或监理同意书:</td>
+                  <td>
+                  <span class="owner_consentFileSpan">
+                  
+                   </span>
+                   <input type="file" id="owner_consentFile" onchange="addFile(this,'owner_consentFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                
+                 <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="save" class="btn btn82 btn_save2" value="下一步">
+                   </td>
+                 </tr>
+               </table>
+               </form>
+            </div>
+          </div>
+        </div>
+     </div>
+     
+     <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	$(document).ready(function () {
+	        //文件删除按钮
+	        $(document).on('click','.remove-file-btn',function () {
+	        	if(confirm("确认删除么？")){
+	        		$(this).closest('.fileDiv').remove();
+	        	}
+	        })
+	        //保存按钮
+	        $(document).on('click','.btn_save2',function () {
+	            submitForm();
+	        })
+	    })
+    	
+    	
+    	function submitForm(){
+            var data = {};
+            data["name"]=$("input[name='name']").val();
+            data["project_type"]= $('#project_type option:selected').val();
+            data["location"]=$("input[name='location']").val();
+            data["construction_org"]=$("input[name='construction_org']").val();
+            data["supervising_org"]=$("input[name='supervising_org']").val();
+            data["supervisor"]=$("input[name='supervisor']").val();
+            data["supervisor_phone"]=$("input[name='supervisor_phone']").val();
+            data["constructor"]=$("input[name='constructor']").val();
+            data["PM"]=$("input[name='PM']").val();
+            data["PM_phone"]=$("input[name='PM_phone']").val();
+            data["is_urgency"]= $('#is_urgency option:selected').val();
+            data["create_by"]=${activeAdmin.id};
+            if(data.name==""||data.project_type==""||data.location==""||data.construction_org==""||data.supervising_org==""||data.supervisor==""||data.supervisor_phone==""||data.constructor==""
+                ||data.PM==""||data.PM_phone==""||data.is_urgency==""
+            ){
+                alert("请填完带'*'的必填项后再进行下一步");
+                return false;
+            }
+            var sign_file=[];
+            fileToList('sign_fileFileSpan',sign_file);
+            data.sign_file = sign_file;
+            
+            var owner_consent=[];
+            fileToList('owner_consentFileSpan',owner_consent);
+            data.owner_consent = owner_consent;
+            //提交数据
+            $.ajax({
+		        url:'/manage/add_project',
+		        secureuri:false,
+		        traditional:true,
+		        contentType:"application/json",
+		        type: 'POST',
+	            data: JSON.stringify(data),
+		        dataType: 'json',//返回数据的类型
+		        success: function (data) {//添加成功
+		            if(data>0){
+		            	alert("添加成功!");
+		            	window.location.href="/manage/goAddEarlyProject?project_id="+data;
+		            }
+		            if(data==0){
+		                alert("紧急开工!");
+                        window.location.href="/manage/web_project_list?pageindex=1";
+                    }
+		        }
+		    });
+        }
+    	
+    	
+    	function fileToList(Cname,List){   //遍历div  把file改为list
+    		var order = 1;
+    		$('.'+Cname+" .fileDiv").each(function (i,item) {
+                var fileObj={};
+                fileObj.name= $(item).data('name');
+                fileObj.url = $(item).find('a').attr('href');
+                fileObj.type = $(item).find('a').attr('type');
+                fileObj.order = order++;
+                List.push(fileObj);
+            })
+    	}
+    	
+    	
+    	function addFile(obj,Cname){  //上传文件到七牛  
+    			var timestamp = (new Date()).getTime(); //时间戳
+    			var formData = new FormData();
+    	        var file_obj = obj.files[0];
+    	        if(file_obj==null){  //没有选择文件 跳出方法
+    	        	return false;
+    	        }
+    	        var fileName=file_obj.name;
+    	        
+    	        var strtype = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();//（把路径中的所有字母全部转换为小写）
+    	        strtype=fileType(strtype);
+    	        if(strtype==null||strtype==""){
+    	            alert("不支持的文件类型!请重新选择!");
+                    return false;
+                }
+    	        formData.append("token","${token}");  //token
+    	        formData.append("key","${prefix}"+timestamp+fileName);  //name
+    	        formData.append('file',file_obj);   //文件
+    		    $.ajax({
+    		        url:'http://up-z1.qiniu.com/',
+    		        secureuri:false,
+    		        type: 'POST',
+    	            data: formData,
+    		        dataType: 'json',//返回数据的类型
+    		        processData:false,  //
+                    contentType: false, 
+    		        success: function (data) {//上传成功
+    		        	$('#'+Cname).val('');
+    		        	var url="${QiniuUrl}"+data.key;
+    		        	var str ='';
+    		        	if(strtype.indexOf("image")!=-1){ //包含 是图片
+    		        		   str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+    		        		   '<a href="'+url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+url+'" /></a>'+
+    		        		   '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+    		        	}else{
+    		        		str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+    		        		'<a href="'+url+'" type="'+strtype+'" target=_blank>'+file_obj.name+'</a>'+
+    		        		'<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+    		        		
+    		        	}
+    		        	$('.'+Cname+"Span").append(str);
+    		        }
+    		    });
+    	}
+    	
+    	function fileType(type){
+    		var typeList=[
+    			{suffix:".png,.jpg,.gif,.bmp,.jpeg",type:"image"},
+    			{suffix:".doc,.docx,.word,.dotx,.dotm,.docm",type:"word"},
+    			{suffix:".pdf",type:"pdf"},
+    			{suffix:".ppt,.pptx,.ppsx,.pptm,.ppsx,.potx",type:"ppt"},
+    			{suffix:".txt",type:"txt"},
+    			{suffix:".cad",type:"cad"},
+    			{suffix:".xlsx,.xls,.xlsm,.xlsb,.xlsm,.xlam",type:"excel"}
+    			];
+    		var result_type=null;
+    		for(var i=0;i<typeList.length;i++){
+    			if(typeList[i].suffix.indexOf(type)!=-1){
+                    result_type=typeList[i].type;
+    			}
+    		}
+    		return result_type;
+    	}
+    	
+	</script> 
+  </body>
+</html>

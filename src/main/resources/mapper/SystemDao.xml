@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.SystemDao">
+
+	
+<!-- resultMap映射 -->
+<resultMap type="Organization" id="OrganizationResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="name" column="name"/>
+		<result property="number" column="number"/>
+		<result property="oclass" column="class"/>
+		<result property="father_id" column="father_id"/>
+		<result property="remark" column="remark"/>
+</resultMap>
+
+
+<!-- resultMap映射 -->
+<resultMap type="RoleInfo" id="RoleResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="name" column="name"/>
+		<result property="remark" column="remark"/>
+</resultMap>
+
+<!-- resultMap映射 -->
+	<resultMap type="Role_User_Relation" id="Role_User_RelationResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		
+		<!-- 关联信息 -->
+		<association property="roleInfo" javaType="RoleInfo">
+			<id property="id" column="id"/>
+		<!--一般属性 -->
+			<result property="name" column="name"/>
+			<result property="remark" column="remark"/>
+		</association>
+		
+		<association property="userInfo" javaType="userInfo">
+			<id property="id" column="id"/>
+		<!--一般属性 -->
+		<result property="job_number" column="job_number"/>
+		<result property="login_name" column="login_name"/>
+		<result property="user_name" column="user_name"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="cellphone" column="cellphone"/>
+		<result property="password" column="password"/>
+		<result property="portrait" column="portrait"/>
+		<result property="create_at" column="create_at"/>
+		<result property="update_at" column="update_at"/>
+		</association>
+</resultMap>
+
+<!-- resultMap映射 -->
+	<resultMap type="Role_Auth_Relation" id="Role_Auth_RelationResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		
+		<!-- 关联信息 -->
+		<association property="roleInfo" javaType="RoleInfo">
+			<id property="id" column="id"/>
+		<!--一般属性 -->
+			<result property="name" column="name"/>
+			<result property="remark" column="remark"/>
+		</association>
+		
+		<association property="auth" javaType="Auth">
+			<id property="id" column="id"/>
+		<!--一般属性 -->
+		<result property="name" column="name"/>
+		<result property="remark" column="remark"/>
+		</association>
+	
+</resultMap>
+
+
+<!-- resultMap映射 -->
+<resultMap type="Group" id="GroupResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="name" column="name"/>
+		<result property="remark" column="remark"/>
+</resultMap>
+
+
+<!-- resultMap映射 -->
+<resultMap type="Auth" id="AuthResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="name" column="name"/>
+		<result property="remark" column="remark"/>
+</resultMap>
+
+
+	<select id="getAllOrganization"  parameterType="String" resultMap="OrganizationResult">
+		select * from organization where 1=1
+		<if test="_parameter != null and _parameter !=''">
+			and name like CONCAT('%',#{oname},'%')   
+		</if>
+	</select> 
+	
+	<select id="checkOrganizationName"  parameterType="String" resultMap="OrganizationResult">
+	SELECT * FROM organization WHERE name=#{name}
+	</select>
+	
+	<select id="findOrganizationPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="OrganizationResult">
+		select * from organization where 1=1
+		<if test="params.key != null and params.key !=''">
+			and name like CONCAT('%',#{params.key},'%')   
+		</if>
+	</select> 
+	
+	<select id="getOrganizationById"  parameterType="Integer" resultMap="OrganizationResult">
+		select * from organization where id=#{id}
+	</select> 
+	
+	
+	
+	<insert id="insertOrganization" parameterType="Organization">
+		insert into organization
+		(name,number,class,father_id,remark)
+		values
+		(	#{name},
+			#{number},
+			#{oclass},
+			#{father_id},
+			#{remark}
+		)
+	</insert>	
+	
+	
+	<update id="updateOrganizationById" parameterType="Organization">
+	update organization
+		<set>
+			<if test="name != null">name=#{name, jdbcType=VARCHAR},</if>
+			<if test="number != null">number=#{number, jdbcType=VARCHAR},</if>
+			<if test="oclass != null">class=#{oclass, jdbcType=INTEGER},</if>
+			<if test="father_id != null">father_id=#{father_id, jdbcType=INTEGER},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteOrganizationById" parameterType="Integer">
+	delete from organization where id=#{id}
+	</delete>
+	
+	
+	
+	<!-- role -->
+	<update id="updateRole_User_Relation" parameterType="java.util.Map" >
+	update user_role_relation
+		<set>
+			<if test="role_id != null">role_id=#{role_id, jdbcType=INTEGER}</if>
+		</set>
+		where user_id=#{id}
+	</update>
+	
+	
+	<insert id="insertRole_User_Relation" parameterType="java.util.Map">
+	insert into user_role_relation
+		(user_id,role_id)
+		values
+		(	#{user_id},
+			#{role_id}
+		)
+	</insert>
+	
+	<delete id="deleteRole_User_Relation" parameterType="Role_User_Relation">
+	delete from user_role_relation where user_id=#{userInfo.id}
+	</delete>
+	
+	<delete id="deleteRole_User_RelationByRoleId" parameterType="Integer">
+	delete from user_role_relation where role_id=#{rid}
+	</delete>
+	
+	
+	<insert id="insertRole_Auth_Relation" parameterType="Role_Auth_Relation">
+	insert into role_auth_relation
+		(role_id,auth_id)
+		values
+		(	
+			#{roleInfo.id},
+			#{auth.id}
+		)
+	</insert>
+	
+	
+	
+	<delete id="deleteRole_Auth_RelationByRoleId" parameterType="Integer">
+	delete from role_auth_relation where role_id=#{rid}
+	</delete>
+		
+		
+	<delete id="deleteRole_Auth_Relation" parameterType="Role_Auth_Relation">
+	delete from role_auth_relation where auth_id=#{auth.id}
+	</delete>
+	
+	
+	<update id="updateRole_Auth_Relation" parameterType="Role_Auth_Relation" >
+	update role_auth_relation
+		<set>
+			<if test="roleInfo != null">role_id=#{roleInfo.id, jdbcType=INTEGER},</if>
+			<if test="auth != null">auth_id=#{auth.id, jdbcType=INTEGER}</if>
+		</set>
+		where auth_id=#{auth.id}
+	</update>
+	
+
+
+	<select id="getAllRole"  parameterType="String" resultMap="RoleResult">
+		select * from role where 1=1
+		<if test="_parameter != null and _parameter !=''">
+			and name like CONCAT('%',#{rname},'%')   
+		</if>
+	</select> 
+	
+	<select id="getMaxIdRole" resultMap="RoleResult">
+	SELECT * FROM role WHERE id=(SELECT MAX(id) FROM role )
+	</select>
+	
+	<select id="checkRoleName"  parameterType="String" resultMap="RoleResult">
+	SELECT * FROM role WHERE name=#{name}
+	</select>
+	
+	
+	
+	<select id="getRoleById"  parameterType="Integer" resultMap="RoleResult">
+		select * from role where id=#{id}
+	</select> 
+	
+	<select id="findRolePage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="RoleResult">
+		select * from role where 1=1
+		<if test="params.key != null and params.key !=''">
+			and name like CONCAT('%',#{params.key},'%')   
+		</if>
+	</select> 
+	
+	<insert id="insertRole" parameterType="RoleInfo">
+		insert into role
+		(name,remark)
+		values
+		(	#{name},
+			#{remark}
+		)
+	</insert>	
+	
+	
+	<update id="updateRoleById" parameterType="RoleInfo">
+	update role
+		<set>
+			<if test="name != null">name=#{name, jdbcType=VARCHAR},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteRoleById" parameterType="Integer">
+	delete from role where id=#{id}
+	</delete>
+	
+	
+	<!--Organization_User_Relation  -->
+	<update id="updateOrganization_User_Relation" parameterType="Organization_User_Relation" >
+	update organization_user_relation
+		<set>
+			<if test="organization != null">organization_id=#{organization.id, jdbcType=INTEGER},</if>
+			<if test="userInfo != null">user_id=#{userInfo.id, jdbcType=INTEGER}</if>
+		</set>
+		where user_id=#{userInfo.id}
+	</update>
+	
+	
+    <insert id="insertOrganization_User_Relation" parameterType="Organization_User_Relation">
+	insert into organization_user_relation
+		(user_id,organization_id)
+		values
+		(	#{userInfo.id},
+			#{organization.id}
+		)
+	</insert>
+	
+	<delete id="deleteOrganization_User_Relation" parameterType="Organization_User_Relation">
+	delete from organization_user_relation where user_id=#{userInfo.id}
+	</delete>
+	
+	<delete id="deleteOrganization_User_RelationByOid" parameterType="Integer">
+	delete from organization_user_relation where organization_id=#{oid}
+	</delete>
+	
+	
+	<!-- auth -->
+	<select id="getAllAuth"  parameterType="String" resultMap="AuthResult">
+		select * from auth where 1=1
+		<if test="_parameter != null and _parameter !=''">
+			and name like CONCAT('%',#{rname},'%')   
+		</if>
+	</select> 
+	
+	<select id="getAuthById"  parameterType="Integer" resultMap="AuthResult">
+		select * from auth where id=#{id}
+	</select> 
+	
+	<select id="findAuthPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="AuthResult">
+		select * from auth where 1=1
+		<if test="params.key != null and params.key !=''">
+			and name like CONCAT('%',#{params.key},'%')   
+		</if>
+	</select> 
+	
+	<insert id="insertAuth" parameterType="Auth">
+		insert into auth
+		(name,remark)
+		values
+		(	#{name},
+			#{remark}
+		)
+	</insert>	
+	
+	<select id="getAuthByRoleId"  parameterType="Integer" resultMap="AuthResult">
+		select a.* from auth a inner join role_auth_relation ra
+		on a.id=ra.auth_id
+		where ra.role_id=#{rid}
+	</select> 
+	
+	
+	<update id="updateAuthById" parameterType="Auth">
+	update auth
+		<set>
+			<if test="name != null">name=#{name, jdbcType=VARCHAR},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteAuthById" parameterType="Integer">
+	delete from auth where id=#{id}
+	</delete>
+	
+	<!-- ======================================================Company====================================================== -->
+	
+	<select id="getAllCompany" parameterType="java.util.Map" resultType="java.util.Map">
+		select * from `company` where 1=1
+		<if test="cname != null and cname !=''">
+			and cname like CONCAT('%',#{cname},'%')   
+		</if>
+		order by id desc
+	</select> 
+	
+	<select id="findCompanyPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultType="java.util.Map">
+		SELECT c.*,cc.cname parent_name FROM `company` c  
+		LEFT JOIN `company` cc ON c.parent_id=cc.id
+		where 1=1
+		<if test="params.key != null and params.key !=''">
+			and c.cname like CONCAT('%',#{params.key},'%')   
+		</if>
+	</select> 
+	
+	<select id="getCompanyById"  parameterType="Integer" resultType="java.util.Map">
+		select * from `company` where id=#{id}
+	</select> 
+	
+	<insert id="insertCompany" parameterType="java.util.Map">
+		insert into `company`
+		(cname,remark,parent_id,rong_group_id,notice_rong_group_id)
+		values
+		(	#{cname},
+			#{remark},
+			#{parent_id},
+			#{rong_group_id},
+			#{notice_rong_group_id}
+		)
+	</insert>	
+	
+	<update id="updateCompanyById" parameterType="java.util.Map">
+	update `company`
+		<set>
+			<if test="cname != null">cname=#{cname, jdbcType=VARCHAR},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR},</if>
+			<if test="parent_id != null">parent_id=#{parent_id, jdbcType=VARCHAR},</if>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR},</if>
+			<if test="notice_rong_group_id != null">notice_rong_group_id=#{notice_rong_group_id, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteCompanyById" parameterType="Integer">
+	delete from `company` where id=#{id}
+	</delete>
+	
+	
+	<!-- ======================================================Department====================================================== -->
+	
+	<select id="getAllDepartment" parameterType="java.util.Map"  resultType="java.util.Map">
+		select * from `department` where 1=1
+		<if test="dname != null and dname !=''">
+			and dname like CONCAT('%',#{dname},'%')   
+		</if>
+		<if test="company_id != null and company_id !=''">
+			and company_id =#{company_id} 
+		</if>
+		order by id desc
+	</select> 
+	
+	
+	<select id="findDepartmentPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultType="java.util.Map">
+		SELECT d.*,c.cname FROM `department` d INNER JOIN `company` c ON d.company_id=c.id  
+		where 1=1
+		<if test="params.key != null and params.key !=''">
+			and d.dname like CONCAT('%',#{params.key},'%')   
+		</if>
+		<if test="params.company_id != null and params.company_id !=''">
+			and c.id=#{params.company_id}  
+		</if>
+	</select> 
+	
+	<select id="getDepartmentById"  parameterType="Integer" resultType="java.util.Map">
+		select * from `department` where id=#{id}
+	</select> 
+	
+	<insert id="insertDepartment" parameterType="java.util.Map">
+		insert into `department`
+		(dname,remark,company_id,charge,rong_group_id)
+		values
+		(	#{dname},
+			#{remark},
+			#{company_id},
+			#{charge},
+			#{rong_group_id}
+		)
+	</insert>	
+	
+	<update id="updateDepartmentById" parameterType="java.util.Map">
+	update `department`
+		<set>
+			<if test="dname != null">dname=#{dname, jdbcType=VARCHAR},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR},</if>
+			<if test="company_id != null">company_id=#{company_id, jdbcType=INTEGER},</if>
+			<if test="charge != null">charge=#{charge, jdbcType=INTEGER},</if>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<update id="updateDepartmentByDId" parameterType="java.util.Map">
+	update `department`
+		<set>
+			<if test="user_id != null">charge=#{user_id, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{department_id}
+	</update>
+	
+	
+	<delete id="deleteDepartmentById" parameterType="Integer">
+	delete from `department` where id=#{id}
+	</delete>
+	
+	<!-- ======================================================group====================================================== -->
+	<select id="getAllGroup"  parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT g.* FROM `group` g
+		LEFT JOIN `department` d ON g.department_id=d.id
+		LEFT JOIN `company` c ON d.company_id=c.id where 1=1
+		
+		<if test="gname != null and gname !=''">
+			and g.name like CONCAT('%',#{gname},'%')   
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and d.id =#{department_id}   
+		</if>
+		order by g.id desc
+	</select> 
+	
+	<select id="checkGroupName"  parameterType="String" resultMap="GroupResult">
+	SELECT * FROM `group` WHERE name=#{name}
+	</select>
+	
+	<select id="getGroupById"  parameterType="Integer" resultType="java.util.Map">
+		SELECT g.*,d.dname,c.id company_id,c.cname FROM `group` g 
+		INNER JOIN `department` d ON g.department_id=d.id 
+		INNER JOIN `company` c ON d.company_id=c.id
+		where g.id=#{id}
+	</select> 
+	
+	<select id="findGroupPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultType="java.util.Map">
+		SELECT g.*,d.dname,c.id company_id,c.cname FROM `group` g 
+		INNER JOIN `department` d ON g.department_id=d.id 
+		INNER JOIN `company` c ON d.company_id=c.id
+		 where 1=1
+		<if test="params.key != null and params.key !=''">
+			and g.name like CONCAT('%',#{params.key},'%')   
+		</if>
+		<if test="params.company_id != null and params.company_id !=''">
+			and c.id=#{params.company_id}  
+		</if>
+		<if test="params.department_id != null and params.department_id !=''">
+			and d.id=#{params.department_id}  
+		</if>
+		order by g.id desc
+	</select> 
+	
+	<insert id="insertGroup" parameterType="java.util.Map"  useGeneratedKeys="true" keyProperty="group_id">
+		insert into `group`
+		(name,remark,department_id,group_manager,rong_group_id)
+		values
+		(	#{name},
+			#{remark},
+			#{department_id},
+			#{group_manager},
+			#{rong_group_id}
+		)
+	</insert>	
+	
+	<update id="updateGroupById" parameterType="java.util.Map">
+	update `group`
+		<set>
+			<if test="name != null">name=#{name, jdbcType=VARCHAR},</if>
+			<if test="remark != null">remark=#{remark, jdbcType=VARCHAR},</if>
+			<if test="department_id != null">department_id=#{department_id, jdbcType=INTEGER},</if>
+			<if test="group_manager != null">group_manager=#{group_manager, jdbcType=INTEGER},</if>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR}</if>
+		</set>
+		where id=#{group_id}
+	</update>
+	
+	<update id="updateGroupByGId" parameterType="java.util.Map">
+	update `group`
+		<set>
+			<if test="user_id != null">group_manager=#{user_id, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{group_id}
+	</update>
+	
+	
+	<delete id="deleteGroupById" parameterType="Integer">
+	delete from `group` where id=#{id}
+	</delete>
+	
+	
+	<select id="getAllMalfunction_Type"  parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT * FROM `malfunction_type` t
+		where 1=1
+		<if test="department_id != null and department_id !=''">
+			and department_id=#{department_id}
+		</if>
+		<if test="company_id != null and company_id !=''">
+			and company_id=#{company_id}
+		</if>
+	</select>
+	
+	
+	<select id="getGroup_Malfunction_Type"  parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT * FROM `group_malfunction_type_relation` t
+		where 1=1
+		<if test="group_id != null and group_id !=''">
+			and t.group_id =#{group_id}    
+		</if>
+	</select>
+	
+	<insert id="insertGroup_malfunction_type_relation" parameterType="java.util.Map">
+		insert into `group_malfunction_type_relation`
+		(group_id,malfunction_type_id)
+		values
+		(	#{group_id},
+			#{malfunction_type_id}
+		)
+	</insert>
+	
+	
+	<delete id="deleteGroup_malfunction_type_relation" parameterType="Integer">
+	delete from `group_malfunction_type_relation` where group_id=#{group_id}
+	</delete>
+</mapper>

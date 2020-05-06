@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>智运行后台管理系统</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/titleStyle.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../js/jquery.SuperSlide.js"></script>
+<script type="text/javascript">
+	$(function() {
+	        //文件退出按钮
+	        $(document).on('click','.back-session-btn',function () {
+	        	if(confirm("确认退出么？")){
+	        		window.location.href="/session/quit";
+	        	}
+	        })
+	        
+	    
+	    
+		$(".sideMenu").slide({
+			titCell : "h3",
+			targetCell : "ul",
+			defaultIndex : 0,
+			effect : 'slideDown',
+			delayTime : '500',
+			trigger : 'click',
+			triggerTime : '150',
+			defaultPlay : true,
+			returnDefault : false,
+			easing : 'easeInQuint',
+			endFun : function() {
+				scrollWW();
+			}
+		});
+		$(window).resize(function() {
+			scrollWW();
+		});
+	});
+	function scrollWW() {
+		if ($(".side").height() < $(".sideMenu").height()) {
+			$(".scroll").show();
+			var pos = $(".sideMenu ul:visible").position().top - 38;
+			$('.sideMenu').animate({
+				top : -pos
+			});
+		} else {
+			$(".scroll").hide();
+			$('.sideMenu').animate({
+				top : 0
+			});
+			n = 1;
+		}
+	}
+	var urlstr = location.href;
+	var urlstatus = false;
+	$("#nav a").each(
+			function() {
+				if ((urlstr + '/').indexOf($(this).attr('href')) > -1
+						&& $(this).attr('href') != '') {
+					$(this).addClass('curument');
+					urlstatus = true;
+				} else {
+					$(this).removeClass('curument');
+				}
+			});
+	if (!urlstatus) {
+		$("#nav a").eq(0).addClass('curument');
+	}
+
+	var n = 1;
+	function menuScroll(num) {
+		var Scroll = $('.sideMenu');
+		var ScrollP = $('.sideMenu').position();
+		/*alert(n);
+		alert(ScrollP.top);*/
+		if (num == 1) {
+			Scroll.animate({
+				top : ScrollP.top - 38
+			});
+			n = n + 1;
+		} else {
+			if (ScrollP.top > -38 && ScrollP.top != 0) {
+				ScrollP.top = -38;
+			}
+			if (ScrollP.top < 0) {
+				Scroll.animate({
+					top : 38 + ScrollP.top
+				});
+			} else {
+				n = 1;
+			}
+			if (n > 1) {
+				n = n - 1;
+			}
+		}
+	}
+
+	function selectFunction(text, a) {
+		$('#here_area').text("当前位置：" + text);
+		$("li").removeClass("on");
+		$(a).parent().attr("class", 'on');
+	}
+</script>
+<title>智运行后台管理系统</title>
+</head>
+<body>
+	<div class="top">
+		<div id="top_t">
+			<div class="fl"
+				style="font-size:33px;line-height:81px;font-family:隶书;color:yellow;padding-left: 10px;">
+				<img alt="" src="../images/gtgx/gglogo.png" 
+		style="padding-left: 0px;width: 230px;height: 29px">
+		<span class="title_span">
+		智运行后台管理系统v2.0
+		</span>
+				</div>
+			<div id="photo_info" class="fr">
+				<div id="photo" class="fl">
+					<a href="#">
+					
+					<img src="${activeAdmin.portrait }" alt="${activeAdmin.user_name }" width="40"
+						height="40">
+					</a>
+					<span style="color: #FFFFFF;font-size:20px;margin-left: 5px;margin-right: 15px">${activeAdmin.user_name }</span>
+					<span><a href="javascript:;" class="back-session-btn"><img alt="注销" src="../images/gtgx/zhuxiao2.jpg" style="width: 30px;height: 30px;margin-left: 15px;"></a></span>
+					<span id="nt" style="color: #FFFFFF;font-size:20px;margin-left: 20px;">${activeAdmin.role.name }</span>
+				</div>
+			</div>
+		</div>
+		<div id="side_here">
+			<div id="side_here_l" class="fl" style="text-align: center;height: 44px"><h2 style="color: #FFFFFF;margin-right: 35px;">功能菜单 </h2><br /><hr style="border-color: #323D54;"></div>
+			<div id="here_area" class="fl">当前位置：</div>
+		</div>
+	</div>
+	<div class="side">
+		<div class="sideMenu" style="margin:0 auto">
+		
+		<h3 style="color: #FFFFFF;font-size: 18px;font-weight: 500">工程管理</h3>
+		
+		<ul>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/manage/web_project_list?pageindex=1" target="right"
+					onclick="selectFunction('工程前期管理',this)">工程前期管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/manage/web_project_course_list?pageindex=1" target="right"
+					onclick="selectFunction('工程过程管理',this)">工程过程管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/manage/web_project_settlement_list?pageindex=1" target="right"
+					onclick="selectFunction('工程结算管理',this)">工程结算管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/manage/web_project_log?pageindex=1" target="right"
+					onclick="selectFunction('工程报表',this)">工程报表</a></li>
+		</ul>
+		
+		<h3 style="color: #FFFFFF;font-size: 18px;font-weight: 500">施工监护</h3>
+		<ul>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/supervision/web_supervision_list?pageindex=1" target="right"
+					onclick="selectFunction('工程监护管理',this)">工程监护管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/supervision/web_supervision_history?pageindex=1" target="right"
+					onclick="selectFunction('工程监护历史',this)">工程监护历史</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/supervision/web_abarbeitung_list?pageindex=1" target="right"
+					onclick="selectFunction('问题整改管理',this)">问题整改管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/supervision/web_item_list?pageindex=1" target="right"
+					onclick="selectFunction('重要项管理',this)">重要项管理</a></li>
+				
+				
+				 <li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/supervision/web_schedule_list?pageindex=1" target="right"
+					onclick="selectFunction('进度管理',this)">进度管理</a></li> 
+		</ul>
+		
+		
+		<h3 style="color: #FFFFFF;font-size: 17px;font-weight: 500">智巡检</h3>
+		<ul>
+	  			 <li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllMalfunctionReport?pageindex=1" target="right"
+					onclick="selectFunction('故障上报',this)">故障上报</a></li> 
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllTip?pageindex=1" target="right"
+					onclick="selectFunction('安全防护管理',this)">安全防护管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllPatrol_Point?pageindex=1" target="right"
+					onclick="selectFunction('巡检点管理',this)">巡检点管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllPatrol?pageindex=1" target="right"
+					onclick="selectFunction('巡检台账',this)">巡检台账</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllMalfunction?pageindex=1" target="right"
+					onclick="selectFunction('故障管理',this)">故障管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllPatrol_Log?pageindex=1" target="right"
+					onclick="selectFunction('巡检报表',this)">巡检报表</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllMalfunction_Log?pageindex=1" target="right"
+					onclick="selectFunction('故障统计报表',this)">故障统计报表</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/material/getAllMaterial_Log?pageindex=1" target="right"
+				    onclick="selectFunction('物料报表',this)">物料报表</a></li>
+		</ul>
+		
+		<h3 style="color: #FFFFFF;font-size: 17px;font-weight: 500">系统设置</h3>
+		<ul>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllCompany?pageindex=1" target="right"
+					onclick="selectFunction('机构管理',this)">公司管理</a></li>
+			    <li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllDepartment?pageindex=1" target="right"
+					onclick="selectFunction('机构管理',this)">部门管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllGroup?pageindex=1" target="right"
+					onclick="selectFunction('工作组管理',this)">工作组管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllRole?pageindex=1" target="right"
+					onclick="selectFunction('角色管理',this)">角色管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllUser?pageindex=1" target="right"
+					onclick="selectFunction('用户管理',this)">用户管理</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/showMySelf?id=${activeAdmin.id }" target="right"
+					onclick="selectFunction('个人信息',this)">个人信息</a></li>
+		</ul>
+		<h3 style="color: #FFFFFF;font-size: 17px;font-weight: 500">日志管理</h3>
+		<ul>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/showOperation_log?pageindex=1" target="right"
+					onclick="selectFunction('操作记录',this)">操作记录</a></li>
+		</ul>
+		
+		<#if activeAdmin.login_name=="developer">
+		<h3 style="color: #FFFFFF;font-size: 17px;font-weight: 500">APP版本管理</h3>
+		<ul>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getActiveVersion" target="right"
+					onclick="selectFunction('最新版本',this)">最新版本</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getAllVersion?pageindex=1" target="right"
+					onclick="selectFunction('查看所有版本',this)">查看所有版本</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/goAddVersion" target="right"
+					onclick="selectFunction('更新版本',this)">更新版本</a></li>
+				<li><a style="color: #FFFFFF;font-weight:200;font-size:12px" href="/gtgx/getActiveQrCode" target="right"
+				onclick="selectFunction('二维码管理',this)">二维码管理</a></li>
+		</ul>
+		</#if>
+		
+		</div>
+	</div>
+	<div class="main">
+		<iframe name="right" id="rightMain"
+			src="/manage/web_project_list?pageindex=1" frameborder="no"
+			scrolling="auto" width="100%" height="auto" allowtransparency="true"></iframe>
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<h1>欢迎使用国投高新后台管理系统</h1>
+	</div>
+	<div class="bottom">
+		<div id="bottom_bg">版权 光谷电气</div>
+	</div>
+	<div class="scroll">
+		<a href="javascript:;" class="per" title="使用鼠标滚轴滚动侧栏"
+			onclick="menuScroll(1);"></a> <a href="javascript:;" class="next"
+			title="使用鼠标滚轴滚动侧栏" onclick="menuScroll(2);"></a>
+	</div>
+</body>
+
+</html>
+

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>巡检台账</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+
+
+<!-- 日期选择器 -->
+	
+<script async>
+	function fp_ready(){
+	//Regular flatpickr
+	document.getElementById("flatpickr-tryme").flatpickr();
+	document.getElementById("flatpickr-tryme2").flatpickr();
+	}
+	</script>
+	<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+	<script async id="locale_script"></script>
+
+	<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+
+</head>
+  <body>
+    <div style="float:left;height: 36px" >
+    <form action="/gtgx/getAllPatrol?pageindex=1" method="post">
+ <span class="span_common">巡检类型：</span>
+    <select name="type_id"   class="select">
+    <option value="">所有</option>
+    <#list page.params.type_data as type_data>
+    <option value="${type_data.id}" <#if type_data.id == page.params.type_id> selected="selected"</#if> >${type_data.description} </option>
+    </#list>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+ <span class="span_common">巡检班次：</span>
+	<select name="time_id"   class="select">
+			<option value="">所有</option>
+			<#list page.params.time_data as time_data>
+			<option value="${time_data.id}" <#if time_data.id == page.params.time_id> selected="selected"</#if> >${time_data.time_type} </option>
+	</#list>
+	</select>&nbsp;&nbsp;&nbsp;&nbsp;
+   
+  <input type="submit" name="button"
+		class="submit_common" value="查询">
+		</form></div>
+		
+		
+		<a href="#"><input type="input" name="button" disabled="true"
+		class="btn btn82" style="background: white;cursor:default;width: 1px"></a>
+  
+  
+   <table border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th width="70" align="center" class="tableHeader">序号</th>
+				<th align="center" class="tableHeader">巡检点</th>
+				<th align="center" class="tableHeader">巡检类型</th>
+				<th align="center" class="tableHeader">巡检班次</th>
+				<th align="center" class="tableHeader">巡检次数</th>
+				<th align="center" class="tableHeader">创建人</th>
+				<th align="center" class="tableHeader">创建时间</th>
+			</tr>
+			<#list page.data as PatrolList>
+			<tr>
+			<td align="center">${(PatrolList_index+1)+(page.pageindex-1)*page.pagesize}</td>
+			<td>${PatrolList.pname}</td>
+			<td>${PatrolList.type_name}</td>
+			<td>${PatrolList.time_name}</td>
+			<td>${PatrolList.count}</td>
+			<td>${PatrolList.user_name}</td>
+			<td>${PatrolList.create_at}</td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/gtgx/getAllPatrol?pageindex=1&type_id=${(page.params.type_id)!''}&time_id=${(page.params.time_id)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/getAllPatrol?pageindex=${(page.params.lastpage)!''}&type_id=${(page.params.type_id)!''}&time_id=${(page.params.time_id)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/getAllPatrol?pageindex=${(page.params.nextpage)!''}&type_id=${(page.params.type_id)!''}&time_id=${(page.params.time_id)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/gtgx/getAllPatrol?pageindex=${page.totalPagecount}&type_id=${(page.params.type_id)!''}&time_id=${(page.params.time_id)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+</div> 
+  </body>
+</html>

@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.MalfunctionDao">
+
+	
+<!-- resultMap映射 -->
+<resultMap type="MalfunctionInfo" id="MalfunctionResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="location" column="location"/>
+		<result property="status" column="status"/>
+		<result property="type" column="type"/>
+		<result property="source" column="source"/>
+		<result property="question" column="question"/>
+		<result property="text_desc" column="text_desc"/>
+		<result property="image_desc" column="image_desc"/>
+		<result property="audio_desc" column="audio_desc"/>
+		<result property="create_at" column="create_at"/>
+		<result property="appoint_at" column="appoint_at"/>
+		<result property="accept_at" column="accept_at"/>
+		<result property="fix_at" column="fix_at"/>
+		<result property="check_at" column="check_at"/>
+		<result property="material1" column="material1"/>
+		
+		<!-- 关联信息 fixUserInfo-->
+		<association property="fixUserInfo" javaType="UserInfo">
+			<id property="id" column="fuid"/>
+		<!--一般属性 -->
+			<result property="user_name" column="funame"/>
+		</association>
+		
+		<!-- 关联信息 createUserInfo-->
+		<association property="createUserInfo" javaType="UserInfo">
+			<id property="id" column="cuid"/>
+		<!--一般属性 -->
+			<result property="user_name" column="cuname"/>
+		</association>
+		
+		<collection property="supportInfoList" ofType="SupportInfo" javaType="java.util.List">
+        <result property="createUserInfo.user_name" column="suname"/>
+        <result property="support_staff" column="support_staff"/>
+        <result property="id" column="sid"/>
+        </collection>
+</resultMap>
+
+
+<!-- resultMap映射 -->
+<resultMap type="Text_Desc" id="Text_DescResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="content" column="content"/>
+		<result property="create_at" column="create_at"/>
+		<!-- 关联信息 -->
+		<association property="createUserInfo" javaType="UserInfo">
+			<id property="id" column="uid"/>
+		<!--一般属性 -->
+			<result property="user_name" column="user_name"/>
+		</association>
+</resultMap>
+
+<!-- resultMap映射 -->
+<resultMap type="Image_Desc" id="Image_DescResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="content" column="content"/>
+		<result property="create_at" column="create_at"/>
+		<!-- 关联信息 -->
+		<association property="createUserInfo" javaType="UserInfo">
+			<id property="id" column="uid"/>
+		<!--一般属性 -->
+			<result property="user_name" column="user_name"/>
+		</association>
+</resultMap>
+
+
+<!-- resultMap映射 -->
+<resultMap type="Audio_Desc" id="Audio_DescResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="content" column="content"/>
+		<result property="create_at" column="create_at"/>
+		
+		<!-- 关联信息 -->
+		<association property="createUserInfo" javaType="UserInfo">
+			<id property="id" column="uid"/>
+		<!--一般属性 -->
+			<result property="user_name" column="user_name"/>
+		</association>
+</resultMap>
+
+
+<select id="getAudio_DescById"  parameterType="java.util.List" resultMap="Audio_DescResult">
+		select t.*,u.id uid,u.user_name from audio_desc t left join user u on t.create_by=u.id where 1=1
+			and t.id in 
+	<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+	  #{list}
+	</foreach>  
+</select> 
+
+<select id="getText_DescById"  parameterType="java.util.List" resultMap="Text_DescResult">
+		select t.*,u.id uid,u.user_name from text_desc t left join user u on t.create_by=u.id where 1=1
+			and t.id in 
+	<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+	  #{list}
+	</foreach>  
+</select> 
+	
+<select id="getImage_DescById"  parameterType="java.util.List" resultMap="Image_DescResult">
+		select t.*,u.id uid,u.user_name from image_desc t left join user u on t.create_by=u.id where 1=1
+			and t.id in 
+	<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+	  #{list}
+	</foreach>  
+</select> 
+
+
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="MalfunctionResult">
+		SELECT m.*,fu.id fuid,fu.user_name funame,cu.id cuid,cu.user_name cuname,su.id suid,su.user_name suname,s.support_staff support_staff,s.id sid 
+		FROM malfunction m
+		INNER JOIN user fu ON m.fix_by=fu.id
+		INNER JOIN user cu ON m.create_by=cu.id
+		LEFT JOIN support s ON s.malfunction_id=m.id
+		LEFT JOIN user su ON s.create_by =su.id
+		where 1=1
+		<if test="params.type != null and params.type !=''">
+			and m.type = #{params.type}  
+		</if>
+		<if test="params.status != null and params.status !=''">
+			and m.status = #{params.status}   
+		</if>
+		
+		<if test="params.beginTime != null and params.endTime !=null">
+			and m.create_at between #{params.beginTime} and #{params.endTime}
+		</if>
+		GROUP BY m.id
+		ORDER BY m.create_At desc
+		
+	</select> 
+	
+	
+	<select id="getMalfunctionDetail" parameterType="Integer" resultMap="MalfunctionResult">
+	SELECT m.*,fu.id fuid,fu.user_name funame,cu.id cuid,cu.user_name cuname,su.id suid,su.user_name suname FROM `malfunction` m
+		LEFT JOIN `user` fu ON m.fix_by=fu.id
+		LEFT JOIN `user` cu ON m.create_by=cu.id
+		LEFT JOIN `support` s ON s.malfunction_id=m.id
+		LEFT JOIN `user` su ON s.create_by =su.id
+	WHERE m.id=#{id}
+	</select>
+	
+	
+	
+	
+	<select id="getMalPatrolCount" parameterType="java.util.Map" resultType="Integer">
+	SELECT COUNT(*) FROM malfunction m WHERE source=1
+	<if test="userid != null and userid !=''">
+	and m.create_by=#{userid}
+	</if>
+	<if test="stime != null and etime !=null">
+	and m.create_at between #{stime} and #{etime}
+	</if>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	<select id="getAllMalfunction"  parameterType="String" resultMap="MalfunctionResult">
+		select * from malfunction where 1=1
+	</select> 
+	
+	<insert id="insertMalfunction" parameterType="MalfunctionInfo">
+		insert into malfunction
+		(location,fix_by,status,type,source,question,create_by,text_desc,image_desc,audio_desc,create_at,fix_at,check_at)
+		values
+		(	#{location},
+			#{fix_by},
+			#{status},
+			#{type},
+			#{source},
+			#{question},
+			#{create_by},
+			#{text_desc},
+			#{image_desc},
+			#{audio_desc},
+			#{create_at},
+			#{appoint_at},
+			#{accept_at},
+			#{fix_at},
+			#{check_at}
+		)
+	</insert>	
+	
+	
+	<update id="updateMalfunctionById" parameterType="MalfunctionInfo">
+	update malfunction
+		<set>
+			<if test="location != null">location=#{location, jdbcType=VARCHER},</if>
+			<if test="fix_by != null">fix_by=#{fix_by, jdbcType=INTEGER},</if>
+			<if test="status != null">status=#{status, jdbcType=INTEGER},</if>
+			<if test="type != null">type=#{type, jdbcType=INTEGER},</if>
+			<if test="source != null">source=#{source, jdbcType=INTEGER},</if>
+			<if test="question != null">question=#{question, jdbcType=VARCHER},</if>
+			<if test="create_by != null">create_by=#{create_by, jdbcType=INTEGER},</if>
+			<if test="text_desc != null">text_desc=#{text_desc, jdbcType=VARCHER},</if>
+			<if test="image_desc != null">image_desc=#{image_desc, jdbcType=VARCHER},</if>
+			<if test="audio_desc != null">audio_desc=#{audio_desc, jdbcType=VARCHER},</if>
+			<if test="create_at != null">create_at=#{create_at, jdbcType=INTEGER},</if>
+			<if test="appoint_at != null">appoint_at=#{appoint_at, jdbcType=INTEGER},</if>
+			<if test="accept_at != null">accept_at=#{accept_at, jdbcType=INTEGER},</if>
+			<if test="fix_at != null">fix_at=#{fix_at, jdbcType=INTEGER},</if>
+			<if test="check_at != null">check_at=#{check_at, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteMalfunctionById" parameterType="Integer">
+	delete from malfunction where id=#{id}
+	</delete>
+	
+	
+	<!-- ===========================================故障上报======================================== -->
+	<select id="getAllMalfunctionReport" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT d.dname,m.id malfunction_id,m.location,m.question,t.id type_id,t.type_name,m.text_desc,u.user_name,m.create_at FROM `malfunction` m
+	left JOIN `malfunction_type` t ON m.type=t.id
+	INNER JOIN `user` u ON m.create_by=u.id
+	INNER JOIN `department` d ON m.department_id=d.id
+	where 1=1
+	<if test="reportTime != null and reportTime !=''">
+	and m.create_at between #{reportTime} and #{endTime}
+	</if>
+	<if test="department_id != null and department_id !=''">
+	and d.id=#{department_id}
+	</if>
+	<if test="type_id != null and type_id !=''">
+	and t.id=#{type_id}
+	</if>
+	order by m.create_at desc
+	</select>
+	
+	
+	<select id="getAllMalfunctionType" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * from `malfunction_type`
+	</select>
+	
+	
+	<insert id="insertMalfunctionReport" parameterType="java.util.Map">
+		insert into malfunction
+		(location,type,source,question,create_by,text_desc,image_desc,audio_desc,create_at,department_id)
+		values
+		(	#{location},
+			#{type},
+			#{source},
+			#{question},
+			#{create_by},
+			#{text_desc},
+			#{image_desc},
+			#{audio_desc},
+			#{create_at},
+			#{department_id}
+		)
+	</insert>	
+	
+	<insert id="insertTextDesc" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="text_id">
+		insert into `text_desc`
+		(content,create_by,create_at)
+		values
+		(	#{content},
+			#{create_by},
+			#{create_at}
+		)
+	</insert>
+	
+</mapper>

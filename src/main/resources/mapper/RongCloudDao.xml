@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.RongCloudDao">
+
+	<!-- 聊天列表 -->
+	<select id="chat_list" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT ru.rong_accept_id,u.user_name,ru.rong_group_id,g.group_name,ru.create_at FROM `rong_user_chat` ru
+		LEFT JOIN `rong_group` g ON ru.rong_group_id=g.rong_group_id
+		LEFT JOIN `user` u ON ru.rong_accept_id=u.rong_user_id
+		where 1=1
+		<if test="rong_send_id != null and rong_send_id !=''">
+		and ru.rong_send_id=#{rong_send_id }
+		</if>
+		<if test="rong_accept_id != null and rong_accept_id !=''">
+			and ru.rong_accept_id=#{rong_accept_id }
+		</if>
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and ru.rong_group_id=#{rong_group_id }
+		</if>
+		group by ru.create_at desc
+	</select>
+
+	<!-- 建立聊天 -->
+	<insert id="chat_build" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `rong_user_chat`
+		(rong_send_id,rong_accept_id,rong_group_id,create_at)
+		values
+		(	#{rong_send_id},
+			#{rong_accept_id},
+			#{rong_group_id},
+			SYSDATE()
+		)
+	</insert>
+
+	<!--删除聊天 -->
+	<delete id="chat_delete" parameterType="java.util.Map">
+	delete from `rong_user_chat` where rong_send_id=#{rong_send_id}
+		<if test="rong_accept_id != null and rong_accept_id !=''">
+			and rong_accept_id=#{rong_accept_id }
+		</if>
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and rong_group_id=#{rong_group_id }
+		</if>
+	</delete>
+
+	<!-- 修改聊天 -->
+	<update id="chat_update" parameterType="java.util.Map">
+	update `rong_user_chat`
+		<set>
+			<if test="rong_send_id != null">rong_send_id=#{rong_send_id, jdbcType=VARCHAR},</if>
+			<if test="rong_accept_id != null">rong_accept_id=#{rong_accept_id, jdbcType=VARCHAR},</if>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR},</if>
+			create_at=SYSDATE()
+		</set>
+		where rong_send_id=#{rong_send_id}
+		<if test="rong_accept_id != null and rong_accept_id !=''">
+			and rong_accept_id=#{rong_accept_id }
+		</if>
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and rong_group_id=#{rong_group_id }
+		</if>
+	</update>
+
+
+	<!-- 用户基本信息 -->
+	<select id="user_detail" parameterType="String" resultType="java.util.Map">
+		SELECT u.id user_id,u.rong_user_id,u.rong_token,u.user_name,u.job_number,u.portrait,u.cellphone,r.id role_id,r.name role_name,c.id company_id,c.cname company_name,d.id department_id,d.dname department_name,g.id group_id,g.name group_name FROM `user` u
+		LEFT JOIN `company` c on u.company_id=c.id
+		LEFT JOIN `department` d on u.department_id=d.id
+		LEFT JOIN `group` g on u.group_id=g.id
+		LEFT JOIN `user_role_relation` ur on u.id=ur.user_id
+		LEFT JOIN `role` r on r.id=ur.role_id
+		where 1=1
+		<if test="rong_user_id != null and rong_user_id !=''">
+			and u.rong_user_id=#{rong_user_id}
+		</if>
+		limit 1
+	</select>
+
+	<!-- 建立群组 -->
+	<insert id="group_insert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="group_id">
+		insert into `rong_group`
+		(group_name,group_portrait,create_by,rong_group_id,is_structure,create_at)
+		values
+		(	#{group_name},
+			#{group_portrait},
+			#{create_by},
+			#{rong_group_id},
+			#{is_structure},
+			SYSDATE()
+		)
+	</insert>
+
+	<!-- 建立群组关联关系 -->
+	<insert id="group_user_insert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `rong_group_user_relation`
+		(rong_group_id,rong_user_id)
+		values
+		(	#{rong_group_id},
+			#{rong_user_id}
+		)
+	</insert>
+
+
+	<!-- 群信息 -->
+	<select id="group_select"  resultType="java.util.Map">
+		SELECT g.id group_id,g.group_name,g.group_portrait,g.create_by,u.user_name create_user,g.create_at,g.rong_group_id FROM `rong_group` g
+		left join `user` u on g.create_by=u.id
+		where g.is_dismiss=2
+		<choose>
+			<when test="rong_group_id !=null and rong_group_id != ''">
+				AND g.rong_group_id=#{rong_group_id}
+			</when>
+			<otherwise>
+				AND g.id=#{group_id}
+			</otherwise>
+		</choose>
+		limit 1
+	</select>
+
+	<!-- 退群 -->
+	<delete id="group_user_delete" parameterType="java.util.Map">
+	delete from `rong_group_user_relation` where rong_group_id=#{rong_group_id} and rong_user_id=#{rong_user_id}
+	</delete>
+
+	<!-- 查询是否已经加入群 -->
+	<select id="group_user_select" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT * FROM `rong_group_user_relation` gu
+		where 1=1
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and gu.rong_group_id=#{rong_group_id}
+		</if>
+		<if test="rong_user_id != null and rong_user_id !=''">
+			and gu.rong_user_id=#{rong_user_id}
+		</if>
+	</select>
+
+	<!-- 修改群组 -->
+	<update id="group_update" parameterType="java.util.Map">
+		update `rong_group` r
+		<set>
+			<if test="group_name != null">group_name=#{group_name, jdbcType=VARCHAR},</if>
+			<if test="create_by != null">create_by=#{create_by, jdbcType=INTEGER},</if>
+			<if test="create_at != null">create_at=#{create_at, jdbcType=VARCHAR},</if>
+			<if test="group_portrait != null">group_portrait=#{group_portrait, jdbcType=VARCHAR},</if>
+			<if test="is_dismiss != null">is_dismiss=#{is_dismiss, jdbcType=INTEGER},</if>
+			<if test="dismiss_by != null">dismiss_by=#{dismiss_by, jdbcType=INTEGER},</if>
+			<if test="dismiss_at != null">dismiss_at=#{dismiss_at, jdbcType=VARCHAR},</if>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR}</if>
+		</set>
+		<choose>
+			<when test="group_id !=null and group_id != ''">
+				where r.id=#{group_id}
+			</when>
+			<otherwise>
+				where r.rong_group_id=#{rong_group_id}
+			</otherwise>
+		</choose>
+	</update>
+
+<!-- 发布群公告-->
+	<insert id="group_notice_insert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `rong_group_notice`
+		(rong_group_id,content,create_by,create_at)
+		values
+		(	#{rong_group_id},
+			#{content},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+
+	<update id="group_notice_update" parameterType="java.util.Map">
+		update `rong_group_notice`
+		<set>
+			<if test="rong_group_id != null">rong_group_id=#{rong_group_id, jdbcType=VARCHAR},</if>
+			<if test="content != null">content=#{content, jdbcType=VARCHAR},</if>
+			<if test="create_by != null">create_by=#{create_by, jdbcType=INTEGER},</if>
+			create_at=SYSDATE()
+		</set>
+		where id=#{notice_id}
+	</update>
+
+
+
+	<!-- 群公告列表-->
+	<select id="group_notice_list" parameterType="java.util.Map" resultType="java.util.Map">
+		select gn.id notice_id,gn.content,gn.create_by,u.user_name create_user,gn.create_at from `rong_group_notice` gn
+		left join `user` u on gn.create_by=u.id
+		where 1=1
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and gn.rong_group_id=#{rong_group_id }
+		</if>
+		order by gn.create_at desc
+	</select>
+	<!-- 查询用户加入的群组-->
+	<select id="group_list_ByUser" parameterType="java.util.Map" resultType="java.util.Map">
+		select g.id group_id,g.group_portrait,g.rong_group_id,g.group_name,g.create_by,g.create_at,u.user_name create_user from `rong_group_user_relation`  gu
+		INNER JOIN  `rong_group` g on gu.rong_group_id=g.rong_group_id
+		LEFT JOIN `user` u on u.id=g.create_by
+		WHERE g.is_dismiss=2
+		<if test="rong_user_id != null and rong_user_id !=''">
+			and gu.rong_user_id=#{rong_user_id }
+		</if>
+		<if test="is_structure != null and is_structure !=''">
+			and g.is_structure=#{is_structure }
+		</if>
+		group by g.id
+	</select>
+
+	<!-- 群内用户列表-->
+	<select id="user_list_ByGroup" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT u.id user_id,u.rong_user_id,u.rong_token,u.user_name,u.job_number,u.portrait,u.cellphone,r.id role_id,r.name role_name,c.id company_id,c.cname company_name,d.id department_id,d.dname department_name,g.id group_id,g.name group_name FROM `rong_group_user_relation`  gu
+		LEFT JOIN `rong_group` rg ON gu.rong_group_id=rg.rong_group_id
+		LEFT JOIN `user` u ON gu.rong_user_id=u.rong_user_id
+		LEFT JOIN `company` c ON u.company_id=c.id
+		LEFT JOIN `department` d ON u.department_id=d.id
+		LEFT JOIN `group` g ON u.group_id=g.id
+		LEFT JOIN `user_role_relation` ur ON u.id=ur.user_id
+		LEFT JOIN `role` r ON r.id=ur.role_id
+		WHERE rg.is_dismiss=2 AND u.is_delete=2
+		<if test="rong_group_id != null and rong_group_id !=''">
+			and gu.rong_group_id=#{rong_group_id }
+		</if>
+		group by u.id
+	</select>
+
+	<!-- 所有用户列表-->
+	<select id="user_list" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT u.id user_id,u.rong_user_id,u.rong_token,u.user_name,u.job_number,u.portrait,u.cellphone,r.id role_id,r.name role_name,c.id company_id,c.cname company_name,d.id department_id,d.dname department_name,g.id group_id,g.name group_name FROM `user` u
+		LEFT JOIN `company` c ON u.company_id=c.id
+		LEFT JOIN `department` d ON u.department_id=d.id
+		LEFT JOIN `group` g ON u.group_id=g.id
+		LEFT JOIN `user_role_relation` ur ON u.id=ur.user_id
+		LEFT JOIN `role` r ON r.id=ur.role_id
+        where u.is_delete=2
+        AND u.login_name !='test'
+        AND u.login_name !='user'
+        AND u.login_name !='developer'
+		<if test="user_name != null and user_name !=''">
+			and u.user_name like CONCAT('%',#{user_name},'%')
+		</if>
+		<if test="company_id != null and company_id !=''">
+			and u.company_id =#{company_id}
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and u.department_id =#{department_id}
+		</if>
+		<if test="group_id != null and group_id !=''">
+			and u.group_id =#{group_id}
+		</if>
+		<if test="role_id != null and role_id !=''">
+			and r.id =#{role_id}
+		</if>
+		group by u.id
+	</select>
+
+	<!-- 工作类型列表-->
+	<select id="work_type_list" parameterType="java.util.Map" resultType="java.util.Map">
+		select * from `rong_task_type`
+	</select>
+
+	<!-- 工作提醒时间类型列表-->
+	<select id="work_remind_list" parameterType="java.util.Map" resultType="java.util.Map">
+		select * from `rong_task_remind`
+	</select>
+
+	<!-- 工作列表-->
+	<select id="work_list_ByDate" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT rt.id task_id,rt.name task_name,rt.type_id,rtt.type_name,rt.execute_by,rt.copy_by,rt.location,rt.execution_at,rtr.remind_name
+		FROM `rong_task` rt
+		LEFT JOIN  `rong_task_type` rtt ON rt.type_id=rtt.id
+		LEFT JOIN  `rong_task_remind` rtr ON rt.remind_id=rtr.id
+		where 1=1
+		<if test="execution_at != null and execution_at !=''">
+			and rt.execution_at between #{beginTime} and #{endTime}
+		</if>
+		<if test="all_by != null and all_by !=''">
+			and (locate(#{all_by},rt.execute_by)>0 or locate(#{all_by},rt.copy_by)>0)
+		</if>
+	</select>
+
+	<!-- 工作列表-->
+	<select id="work_list_ByUser" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT rt.id task_id,rt.name task_name,rt.type_id,rtt.type_name,rt.execute_by,rt.copy_by,rt.location,rt.execution_at,rtr.remind_name,rtr.remind_time
+		FROM `rong_task` rt
+		LEFT JOIN  `rong_task_type` rtt ON rt.type_id=rtt.id
+		LEFT JOIN  `rong_task_remind` rtr ON rt.remind_id=rtr.id
+		where 1=1
+		<if test="copy_by != null and copy_by !=''">
+			and locate(#{copy_by},rt.copy_by)>0
+		</if>
+		<if test="execute_by != null and execute_by !=''">
+			and locate(#{execute_by},rt.execute_by)>0
+		</if>
+		<if test="all_by != null and all_by !=''">
+			and (locate(#{all_by},rt.execute_by)>0 or locate(#{all_by},rt.copy_by)>0)
+		</if>
+
+	</select>
+
+
+	<!-- 发布工作-->
+	<insert id="work_add" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `rong_task`
+		(name,type_id,execute_by,copy_by,execution_at,location,remind_id)
+		values
+		(	#{name},
+			#{type_id},
+			#{execute_by},
+			#{copy_by},
+			#{execution_at},
+			#{location},
+			#{remind_id}
+		)
+	</insert>
+
+
+	<!-- 公司-->
+	<select id="getCompanyById" parameterType="Integer" resultType="java.util.Map">
+		select c.rong_group_id,c.id company_id,c.cname company_name from `company` c
+		where 1=1
+		<if test="company_id != null and company_id !=''">
+			and c.id=#{company_id}
+		</if>
+	</select>
+
+	<!-- 部门-->
+	<select id="getDepartmentById" parameterType="Integer" resultType="java.util.Map">
+		select d.rong_group_id,d.id department_id,d.dname department_name from `department` d
+		where 1=1
+		<if test="company_id != null and company_id !=''">
+			and d.company_id=#{company_id}
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and d.id=#{department_id}
+		</if>
+	</select>
+
+	<!-- 工作组-->
+	<select id="getGroupById" parameterType="Integer" resultType="java.util.Map">
+		select g.rong_group_id,g.id group_id,g.name group_name from `group` g
+		where 1=1
+		<if test="department_id != null and department_id !=''">
+			and g.department_id=#{department_id}
+		</if>
+		<if test="group_id != null and group_id !=''">
+			and g.id=#{group_id}
+		</if>
+
+	</select>
+
+
+	<select id="getUserByList" parameterType="java.util.List" resultType="java.util.Map">
+		select u.id user_id,u.user_name from `user` u where u.id in
+		<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+			#{list}
+		</foreach>
+	</select>
+
+<!-- 万年历 -->
+
+	<select id="getLimitRow" parameterType="java.util.List" resultType="java.util.Map">
+		select * from `rong_limit_row` lr
+		where 1=1
+		<if test="date_number != null and date_number !=''">
+			and lr.date_number=#{date_number}
+		</if>
+		<if test="date != null and date !=''">
+			and #{date} between lr.begin_time and end_time
+		</if>
+	</select>
+
+
+	<select id="getAlmanac" parameterType="java.util.List" resultType="java.util.Map">
+		select * from `rong_almanac` a
+		where 1=1
+		<if test="date != null and date !=''">
+			and a.date=#{date}
+		</if>
+	</select>
+
+
+	<insert id="insertAlmanac" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `rong_almanac`
+		(`date`,weather_type,weather_temperature,weather_wind,huangli_yi,huangli_ji,limit_row)
+		values
+		(	#{date},
+			#{weather_type},
+			#{weather_temperature},
+			#{weather_wind},
+			#{huangli_yi},
+			#{huangli_ji},
+			#{limit_row}
+		)
+	</insert>
+
+
+	<update id="updateAlmanac" parameterType="java.util.Map">
+		update `rong_almanac` a
+		<set>
+			<if test="weather_type != null">weather_type=#{weather_type, jdbcType=VARCHAR},</if>
+			<if test="weather_temperature != null">weather_temperature=#{weather_temperature, jdbcType=VARCHAR},</if>
+			<if test="weather_wind != null">weather_wind=#{weather_wind, jdbcType=VARCHAR},</if>
+			<if test="huangli_yi != null">huangli_yi=#{huangli_yi, jdbcType=VARCHAR},</if>
+			<if test="huangli_ji != null">huangli_ji=#{huangli_ji, jdbcType=VARCHAR},</if>
+			<if test="limit_row != null">limit_row=#{limit_row, jdbcType=VARCHAR}</if>
+		</set>
+		where a.date=#{date}
+	</update>
+
+
+
+
+
+	<select id="selectMalfunctionListCount" parameterType="java.util.Map" resultType="java.lang.Integer">
+		select count(*) from malfunction
+		where status in
+		<foreach collection="statusList" item="statusList" index="index" open="(" close=")" separator=",">
+			#{statusList}
+		</foreach>
+		and
+		<if test="fixBys!=null and fixBys.size()!=0">
+		fix_by in
+		<foreach collection="fixBys" item="fixBys" index="index" open="(" close=")" separator=",">
+			#{fixBys}
+		</foreach>
+	</if>
+		<!--and (department_id = #{departmentId} or (department_id=0 and company_id=#{companyId}))-->
+		<if test="departmentId!=null">
+			and (department_id = #{departmentId} or (department_id=0 and company_id=#{companyId}))
+		</if>
+		<if test="departmentId==null">
+			and ((department_id=0 and company_id=#{companyId}) or create_by=#{userId})
+		</if>
+		<!--<if test="isCharge==2">
+          and is_company_manager=1
+        </if>-->
+		<if test="isCharge==3">
+			and is_company_manager=0
+		</if>
+	</select>
+
+	<select id="selectMalfunctionList" parameterType="java.util.Map" resultType="java.util.Map">
+		select
+		m.id,m.location as name,mt.type_name,m.fix_by as fix_by,from_unixtime(m.create_at,'%Y-%m-%d %T') as create_at,
+		m.status,m.question,m.create_by as create_by
+		from malfunction m
+		left join malfunction_type mt on m.type=mt.id
+		where m.status in
+		<foreach collection="statusList" item="statusList" index="index" open="(" close=")" separator=",">
+			#{statusList}
+		</foreach>
+		<if test="creatAt!=null">
+			and m.create_at &lt; #{creatAt}
+		</if>
+		and
+		<if test="fixBys !=null and fixBys.size()>0">
+		m.fix_by in
+		<foreach collection="fixBys" item="fixBys" index="index" open="(" close=")" separator=",">
+			#{fixBys}
+		</foreach>
+	</if>
+		<if test="departmentId!=null">
+			and (m.department_id = #{departmentId} or (m.department_id=0 and m.company_id=#{companyId}))
+		</if>
+		<if test="departmentId==null">
+			and ((m.department_id=0 and m.company_id=#{companyId}) or m.create_by=#{userId})
+		</if>
+		<!--<if test="isCharge==2">
+          and m.is_company_manager=1
+        </if>-->
+		<if test="isCharge==3">
+			and m.is_company_manager=0
+		</if>
+		order by m.create_at desc
+		limit 0,#{pageSize}
+	</select>
+
+	<select id="supervision_list" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT s.id supervision_id,s.project_id,p.name project_name,p.location,t.count,t.type,s.state supervision_state,s.begin_time,s.day_count FROM `supervision` s
+		INNER JOIN project p
+		ON s.project_id=p.id
+		INNER JOIN `supervision_time_type` t
+		ON s.supervision_time_id=t.id
+		LEFT JOIN `supervision_model_department` smd on s.supervision_model_id=smd.model_id
+		WHERE p.state BETWEEN 4 AND 6
+		<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and smd.department_id = #{department_id}
+		</if>
+		order by s.id desc
+	</select>
+
+	<select id="supervision_count" parameterType="java.util.Map" resultType="Integer">
+		SELECT count(*) FROM `supervision` s
+		INNER JOIN project p
+		ON s.project_id=p.id
+		INNER JOIN `supervision_time_type` t
+		ON s.supervision_time_id=t.id
+		WHERE p.state BETWEEN 4 AND 6
+		<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+		</if>
+		order by s.id desc
+	</select>
+
+<!-- DING 用户-->
+	<select id="selectDingReceiveUser" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT du.receive_user_id,u.user_name send_user_name,du.is_read FROM `rong_ding_user_relation` du
+		INNER JOIN `user` u on du.receive_user_id=u.rong_user_id
+		where 1=1
+		<if test="send_user_id != null and send_user_id !=''">
+			and du.send_user_id =#{send_user_id}
+		</if>
+		<if test="ding_time != null and ding_time !=''">
+			and du.ding_time =#{ding_time}
+		</if>
+		<if test="is_read != null and is_read !=''">
+			and du.is_read =#{is_read}
+		</if>
+	</select>
+
+	<select id="selectDingInfo" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT * FROM `rong_ding_user_relation` du
+		where 1=1
+		<if test="send_user_id != null and send_user_id !=''">
+			and du.send_user_id =#{send_user_id}
+		</if>
+		<if test="ding_time != null and ding_time !=''">
+			and du.ding_time =#{ding_time}
+		</if>
+		<if test="is_read != null and is_read !=''">
+			and du.is_read =#{is_read}
+		</if>
+	</select>
+
+
+	<insert id="insertDingUser" parameterType="java.util.Map">
+		insert into `rong_ding_user_relation`
+		(send_user_id,ding_time,receive_user_id,is_read)
+		values
+		(	#{send_user_id},
+			#{ding_time},
+			#{receive_user_id},
+			#{is_read}
+		)
+	</insert>
+
+
+	<update id="updateDingUser" parameterType="java.util.Map">
+		update `rong_ding_user_relation`
+		<set>
+			<if test="is_read != null">is_read=#{is_read, jdbcType=INTEGER}</if>
+		</set>
+		where send_user_id=#{send_user_id}
+		and ding_time=#{ding_time }
+		and receive_user_id=#{receive_user_id }
+	</update>
+
+
+	<select id="getUserInfoByRongId" parameterType="String" resultType="java.util.Map">
+		SELECT * FROM `user` u
+		where u.rong_user_id =#{rong_user_id}
+	</select>
+
+
+	<select id="getUserNameById" parameterType="java.util.Map" resultType="String">
+		SELECT u.user_name FROM `user` u
+		where 1=1
+		<if test="rong_user_id != null and rong_user_id !=''">
+			and u.rong_user_id =#{rong_user_id}
+		</if>
+		<if test="user_id != null and user_id !=''">
+			and u.id =#{user_id}
+		</if>
+		limit 1
+	</select>
+
+</mapper>

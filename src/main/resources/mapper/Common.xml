@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.CommonDao">
+
+	<insert id="add_file_desc" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into file_desc
+		(url,type,order_by,name,create_at,create_by)
+		values
+		(	#{url},
+		 	#{type},
+			#{order_by},
+			#{name},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert>
+	
+	<select id="getFileDescById"  parameterType="java.util.List" resultType="java.util.Map">
+		select id,url,name,type,order_by from file_desc f
+		where is_delete=0 and f.id in 
+	<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+	  #{list}
+	</foreach>  
+	order by f.order_by 
+	</select> 
+	
+	<update id="deleteFileById" parameterType="java.util.Map">
+	update file_desc set is_delete =1 where id=#{id}
+	</update>
+	
+	
+	
+	<!-- 改变工程状态 -->
+	<update id="update_project_state" parameterType="java.util.Map" >
+	update project
+		<set>
+			<if test="state != null">state=#{state, jdbcType=INTEGER},</if>
+			<if test="save_state != null">save_state=#{save_state, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{project_id}
+	</update>
+
+
+
+
+	<insert id="insertImage" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into image_desc
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="content != null">
+				content,
+			</if>
+			create_by,
+			create_at
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+			#{createBy,jdbcType=INTEGER},
+			unix_timestamp(now())
+		</trim>
+	</insert>
+
+	<insert id="insertAudio" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into audio_desc
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="content != null">
+				content,
+			</if>
+			create_by,
+			create_at
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="content != null">
+				#{content,jdbcType=LONGVARCHAR},
+			</if>
+			#{createBy,jdbcType=INTEGER},
+			unix_timestamp(now())
+		</trim>
+	</insert>
+
+
+
+
+
+
+
+
+
+</mapper>

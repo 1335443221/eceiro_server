@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery-1.8.1.min.js"></script> 
+<script type="text/javascript" src="../js/jquery.form.js"></script>
+
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">安全防护信息管理</b></div>
+            <div class="box_center" style="width: 660px;float: left;">
+              <form action="" class="jqtransform" method="post" style="width: 660px;" id="form1">
+               <table class="form_table pt15 pb15" width="660px;" border="0" cellpadding="0" cellspacing="0">
+                  <tr>
+                   	<input type="hidden" name="userid" value="${activeAdmin.id }"/>
+                  <td class="td_right">位置：</td>
+                  <td class=""> 
+                    <input type="text" name="location" value="${(tip.location)!'' }" class="input-text lh30" size="40">
+                 &nbsp;*
+                  </td>
+                   
+                  </tr>
+                  	<tr>
+                  <td class="td_right">作业活动/项目/设备：</td>
+                  <td><input type="text" name="equipment" value="${(tip.equipment)!'' }" class="input-text lh30" size="40">
+                  &nbsp;*
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">危险源（危险因素）：</td>
+                  <td><input type="text" name="source" value="${(tip.source)!'' }" class="input-text lh30" size="40">
+                   &nbsp;*
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">导致的事故、后果：</td>
+                  <td><input type="text" name="result" value="${(tip.result)!'' }" class="input-text lh30" size="40">
+                  &nbsp;*
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">LEC风险级别：</td>
+                  <td>
+                  <input type = "text" name= "lec" value="${(tip.lec)!'' }" class="input-text lh30" size="40" id = 'number' onkeyup= "if(!/^[0-9]+$/.test(this.value)){alert('只能整数');this.value='';}" />  
+                  &nbsp;*<span style="color: red;" >请输入整数</span> 
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">物业公司管理等级：</td>
+                  <td><input type="text" name="tclass" value="${(tip.tclass)!'' }" class="input-text lh30" size="40">
+                   &nbsp;*
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">控制措施：</td>
+                  <td><input type="text" name="measure" value="${(tip.measure)!'' }" class="input-text lh30" size="40">
+                  &nbsp;*
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">检查人员：</td>
+                  <td><input type="text" name="staff" value="${(tip.staff)!'' }" class="input-text lh30" size="40">
+                  &nbsp;*
+                  </td>
+                </tr>
+           </table>
+           
+           <table class="form_table pt15 pb15" width="1060px" border="0" cellpadding="0" cellspacing="0" style="margin-top: 25px;">
+        <tr>
+        <td></td>
+         <td colspan="6">&nbsp;*<span style="color: red;font-size: 16px;">注: 图片支持png,jpg格式，尺寸不超过698*544像素</span></td>
+        </tr>
+         <tr>
+          <td class="td_right">图片1：</td>
+            <td>
+            <span class="image1FileSpan">
+                  
+            </span>
+            <input type="file" id="image1File" onchange="addFile(this,'image1File')"  class="input-text lh30" >
+             </td>
+                
+	   <td>图片描述1：</td>
+	    <td><textarea rows="3" cols="20" id="title1" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序1：</td>
+	    <td><select id="sequence1" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+	    <tr>
+        <td class="td_right">图片2：</td>
+            <td>
+            <span class="image2FileSpan">
+                  
+            </span>
+            <input type="file" id="image2File" onchange="addFile(this,'image2File')"  class="input-text lh30" >
+             </td>
+	   <td>图片描述2：</td>
+	    <td><textarea rows="3" cols="20" id="title2" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序2：</td>
+	    <td><select id="sequence2" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+	    <tr>
+        <td class="td_right">图片3：</td>
+            <td>
+            <span class="image3FileSpan">
+                  
+            </span>
+            <input type="file" id="image3File" onchange="addFile(this,'image3File')"  class="input-text lh30" >
+             </td>
+             
+	   <td>图片描述3：</td>
+	    <td><textarea rows="3" cols="20" id="title3" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序3：</td>
+	    <td><select id="sequence3" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+	    <tr>
+           <td class="td_right">图片4：</td>
+            <td>
+            <span class="image4FileSpan">
+                  
+            </span>
+            <input type="file" id="image4File" onchange="addFile(this,'image4File')"  class="input-text lh30" >
+             </td>
+	   <td>图片描述4：</td>
+	    <td><textarea rows="3" cols="20" id="title4" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序4：</td>
+	    <td><select id="sequence4" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+	    <tr>
+       <td class="td_right">图片5：</td>
+            <td>
+            <span class="image5FileSpan">
+                  
+            </span>
+            <input type="file" id="image5File" onchange="addFile(this,'image5File')"  class="input-text lh30" >
+             </td>
+	   
+	   <td>图片描述5：</td>
+	    <td><textarea rows="3" cols="20" id="title5" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序5：</td>
+	    <td><select id="sequence5" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+	    <tr>
+         <td class="td_right">图片6：</td>
+            <td>
+            <span class="image6FileSpan">
+                  
+            </span>
+            <input type="file" id="image6File" onchange="addFile(this,'image6File')"  class="input-text lh30" >
+             </td>
+	   
+	   <td>图片描述6：</td>
+	    <td><textarea rows="3" cols="20" id="title6" style="width: 220px;height: 90px;"></textarea></td>
+	   <td>图片顺序6：</td>
+	    <td><select id="sequence6" class="select"> 
+	    <option value="1">&nbsp;&nbsp;&nbsp;&nbsp;1&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="2">&nbsp;&nbsp;&nbsp;&nbsp;2&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="3">&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="4">&nbsp;&nbsp;&nbsp;&nbsp;4&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="5">&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    <option value="6">&nbsp;&nbsp;&nbsp;&nbsp;6&nbsp;&nbsp;&nbsp;&nbsp;</option>
+	    	</select>
+  	  </td>
+	   </tr>
+	   
+                 <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="savetip" class="btn btn82 btn_save2" value="保存"> 
+                   </td>
+                 </tr>
+          
+           </table>     
+            
+               
+            </div>
+                <div style="background-color:#CCFFFF;width: 350px;height: 300px;float: left;" >
+                <div style="width: 350px;height: 300px;">
+               <img id="downimg" src="${(tip.qrcode)!'' }" alt="二维码"  style="width: 350px;height: 300px;" >
+             	</div>
+             	<div style="padding-left: 85px;">
+             	 <a href="/gtgx/downQrCode?url=${(tip.qrcode)!'' }">
+			    <input type="button" class="btn btn82 btn_down" value="下载" >
+			    </div>
+                 </a>
+               </div>
+          </div>
+        </div>
+     </div>
+       <script type="text/javascript">
+   	$(document).ready(function () {
+        //文件删除按钮
+        $(document).on('click','.remove-file-btn',function () {
+        	if(confirm("确认删除么？")){
+        		$(this).closest('.fileDiv').remove();
+        	}
+        })
+        //保存按钮
+        $(document).on('click','.btn_save2',function () {
+            submitForm();
+        })
+    });
+   	
+   	
+   	function fileToList(Cname){   //遍历div  把file转为map
+   		var url="";
+		$('.'+Cname+" .fileDiv").each(function (i,item) {
+			url = $(item).find('a').attr('href');
+        })
+        return url;
+	}
+	
+	
+	function addFile(obj,Cname){  //上传文件到七牛  
+			var timestamp = (new Date()).getTime(); //时间戳
+			var formData = new FormData();
+	        var file_obj = obj.files[0];
+	        if(file_obj==null){  //没有选择文件 跳出方法
+	        	return false
+	        }
+	        var fileName=file_obj.name;
+	        
+	        var strtype = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();//（把路径中的所有字母全部转换为小写）
+	        strtype=fileType(strtype);
+                if(strtype==null||strtype==""){
+                alert("不支持的文件类型!请重新选择!");
+                return false;
+                  }
+	        
+	        formData.append("token","${token}");  //token
+	        formData.append("key","${prefix}"+timestamp+fileName);  //name
+	        formData.append('file',file_obj);   //文件
+		    $.ajax({
+		        url:'http://up-z1.qiniu.com/',
+		        secureuri:false,
+		        type: 'POST',
+	            data: formData,
+		        dataType: 'json',//返回数据的类型
+		        processData:false,  //
+                contentType: false, 
+		        success: function (data) {//上传成功
+		        	$('#'+Cname).val('');
+		        	var url="${QiniuUrl}"+data.key;
+		        	var str ='';
+		        	if(strtype.indexOf("image")!=-1){ //包含 是图片
+		        		   str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+		        		   '<a href="'+url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+url+'" /></a>'+
+		        		   '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+		        	}else{
+		        		str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+		        		'<a href="'+url+'" type="'+strtype+'" target=_blank>'+file_obj.name+'</a>'+
+		        		'<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+		        		
+		        	}
+		        	$('.'+Cname+"Span").append(str);
+		        }
+		    });
+	}
+	
+	function fileType(type){
+		var typeList=[
+			{suffix:".png,.jpg,.gif,.bmp,.jpeg",type:"image"},
+			{suffix:".doc,.docx,.word,.dotx,.dotm,.docm",type:"word"},
+			{suffix:".pdf",type:"pdf"},
+			{suffix:".ppt,.pptx,.ppsx,.pptm,.ppsx,.potx",type:"ppt"},
+			{suffix:".txt",type:"txt"},
+			{suffix:".cad",type:"cad"},
+			{suffix:".xlsx,.xls,.xlsm,.xlsb,.xlsm,.xlam",type:"excel"}
+			];
+        var result_type=null;
+        for(var i=0;i<typeList.length;i++){
+            if(typeList[i].suffix.indexOf(type)!=-1){
+                result_type=typeList[i].type;
+            }
+        }
+        return result_type;
+	}
+    
+	function submitForm(){
+		if(form1.location.value==''){
+	   		alert("请填写位置");
+	   		return;
+	   	}
+		   if(form1.equipment.value==''){
+	   		alert("请填写作业活动/项目/设备");
+	   		return;
+	   	}
+		   if(form1.source.value==''){
+	   		alert("请填写危险源（危险因素）");
+	   		return;
+	   	}
+		   if(form1.result.value==''){
+	   		alert("请填写导致的事故、后果");
+	   		return;
+	   	}
+		   if(form1.lec.value==''){
+		   		alert("请填写LEC风险级别");
+		   		return;
+	   }
+		   
+		   if(form1.tclass.value==''){
+	   		alert("请填写物业公司管理等级");
+	   		return;
+	   	}
+		   if(form1.measure.value==''){
+	   		alert("请填写控制措施");
+	   		return;
+	   	}
+		   if(form1.staff.value==''){
+	   		alert("请填写检查人员");
+	   		return;
+	   	}
+		   
+		var data = {};
+		var fileList=[];
+		for(var i = 1; i <= 6; i++){
+			 var file={};
+			 file.url=fileToList('image'+i+'FileSpan');
+			 file.title=$("#title"+i).val();
+			 file.sequence=$('#sequence'+i+' option:selected').val();
+			fileList.push(file);
+			}
+		data.fileList=fileList;
+		data.location=$("input[name='location']").val();
+		data.equipment=$("input[name='equipment']").val();
+		data.source=$("input[name='source']").val();
+		data.result=$("input[name='result']").val();
+		data.lec=$("input[name='lec']").val();
+		data.tclass=$("input[name='tclass']").val();
+		data.measure=$("input[name='measure']").val();
+		data.staff=$("input[name='staff']").val();
+		data.userid=$("input[name='userid']").val();
+       
+          //提交数据
+        $.ajax({
+	        url:'/gtgx/insertTip',
+	        secureuri:false,
+	        traditional:true,
+	        contentType:"application/json",
+	        type: 'POST',
+            data: JSON.stringify(data),
+	        dataType: 'json',//返回数据的类型
+	        success: function (data) {//添加成功
+	        	if(data>0){
+					alert("增加成功");
+					window.location.href="/gtgx/getTipById?id="+e;
+				}
+	        }
+	    });
+    }
+	
+   </script> 
+  </body>
+</html>
+            
+
+
+

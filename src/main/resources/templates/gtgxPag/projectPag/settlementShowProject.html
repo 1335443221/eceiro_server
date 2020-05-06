@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>工程早期管理</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+<script type="text/javascript">
+
+
+</script>
+
+
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/manage/web_project_settlement_list?pageindex=1" method="post">
+		<span class="span_common">工程名称：</span>
+    <input type="text" name="name" value="${(page.params.name)!''}" class="input-text lh30" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">工程类型：</span>
+     <select name="type_id" class="select"> 
+    							<option value="">全部</option>
+                  				<#list page.params.type_data as type_data>
+                  				<option value="${(type_data.id)!"" }"  <#if type_data.id == page.params.type_id> selected="selected"</#if> >${type_data.name }</option>
+                  				</#list>
+     </select>&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">工程阶段：</span>
+     <select name="state_id" class="select"> 
+    							<option value="">全部</option>
+                  				<#list page.params.state_data as state_data>
+                  				<option value="${(state_data.id)!"" }"  <#if state_data.id == page.params.state_id> selected="selected"</#if> >${state_data.state_name }</option>
+                  				</#list>
+     </select>&nbsp;&nbsp;&nbsp;&nbsp;
+    
+  <input type="submit" name="button" class="submit_common" value="查询">
+		</form></div>
+  <a href="#"><input type="input" name="button" disabled="true"
+		class="btn btn82" style="background: white;cursor:default;width: 1px"></a>
+  
+   <table  border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">工程名称</th>
+				<th align="center" class="tableHeader">工程类型</th>
+				<th align="center" class="tableHeader">施工位置</th>
+				<th align="center" class="tableHeader">施工单位</th>
+				<th align="center" class="tableHeader">监理单位</th>
+				<th align="center" class="tableHeader">是否紧急施工</th>
+				<th align="center" class="tableHeader">工程阶段</th>
+				<th align="center" class="tableHeader">结算人</th>
+				<th align="center" class="tableHeader">结算时间</th>
+				<th align="center" class="tableHeader">操作</th>
+			</tr>
+			<#list page.data as projectList>
+			
+			<tr>
+			<td>${projectList.name}</td>
+			<td>${projectList.type_name }</td>
+			<td>${projectList.location }</td>
+			<td>${projectList.construction_org}</td>
+			<td>${projectList.supervising_org }</td>
+			<td>
+			<#if projectList.is_urgency=='1'>
+			是
+			<#else>
+			否
+			</#if>
+			
+			</td>
+			<td>${projectList.state_name }</td>
+			<td>${projectList.screate_by }</td>
+			<td>${projectList.screate_at }</td>
+			<td>
+
+				<#if activeAdmin.rid=='3'||activeAdmin.rid=='4'>
+				<button class="button_common">
+					<a href="/manage/web_update_settlement_list?project_id=${projectList.project_id }">
+						<span class="button_span_common">编辑</span>
+					</a>
+				</button>&nbsp;
+				<#else>
+				<button class="button_common" style="background-color: buttonface;" disabled="true"><span class="button_span_common">编辑</span></button>&nbsp;
+			   </#if>
+
+				<button class="button_common">
+					<a href="/manage/web_show_settlement_list?project_id=${projectList.project_id }&state=2"><span class="button_span_common">查看</span></a>
+				</button>&nbsp;
+			 </td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/manage/web_project_settlement_list?pageindex=1">[首页]</a></li>&nbsp;
+			
+			<li><a href="/manage/web_project_settlement_list?pageindex=${(page.params.lastpage)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/manage/web_project_settlement_list?pageindex=${(page.params.nextpage)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/manage/web_project_settlement_list?pageindex=${page.totalPagecount}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+  </body>
+</html>

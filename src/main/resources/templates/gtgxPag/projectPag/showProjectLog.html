@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>工程报表</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>                 
+<script type="text/javascript" src="../js/classes.js"></script>
+
+<!-- 日期选择器 -->
+	
+<script async>
+	function fp_ready(){
+	//Regular flatpickr
+	document.getElementById("flatpickr-tryme").flatpickr();
+	document.getElementById("flatpickr-tryme2").flatpickr();
+	}
+	</script>
+	<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+	<script async id="locale_script"></script>
+
+	<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+	
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/manage/web_project_log?pageindex=1" method="post">
+		<span class="span_common">工程名称：</span>
+    <input type="text" name="name" value="${(page.params.name)!''}" class="input-text lh30" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">工程类型：</span>
+     <select name="type_id" class="select"> 
+    							<option value=''>全部</option>
+                  				<#list page.params.type_data as type_data>
+                  				<option value="${(type_data.id)!'' }"  <#if type_data.id == page.params.type_id> selected="selected"</#if> >${type_data.name }</option>
+                  				</#list>
+     </select>&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">施工日期：</span>
+  	 	<input input id="flatpickr-tryme" placeholder="起始时间" type='text' class="input-text lh30" name="beginTime" value="${(page.params.beginTime)!''}" autocomplete="off" size="10"/>
+  	 至
+  	 	<input input id="flatpickr-tryme2" placeholder="结束时间" type='text' class="input-text lh30" name="endTime" value="${(page.params.endTime)!''}" autocomplete="off" size="10"/>
+		&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="submit" name="button"
+		 class="submit_common" value="查询">
+		</form></div>
+
+<a href="/manage/export_project_Log?name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}">
+		<button id="js-export" type="button"class="download_button" >下载</button>
+</a>
+  
+   <table  border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;font-size: 4px;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">工程类型</th>
+				<th align="center" class="tableHeader">工程名称</th>
+				<th align="center" class="tableHeader">施工单位</th>
+				<th align="center" class="tableHeader">监理单位</th>
+				<th align="center" class="tableHeader">监理负责人</th>
+				<th align="center" class="tableHeader">开工日期</th>
+				<th align="center" class="tableHeader">竣工日期</th>
+				<th align="center" class="tableHeader">项目经理</th>
+				<th align="center" class="tableHeader">联系电话</th>
+				<th align="center" class="tableHeader">施工违规/处罚记录</th>
+				<th align="center" class="tableHeader">合同总款（未税）</th>
+				<th align="center" class="tableHeader">已支付（未税）</th>
+				<th align="center" class="tableHeader">未支付（未税）</th>
+				<th align="center" class="tableHeader">质保金（未税）</th>
+				<th align="center" class="tableHeader">质保结束日期</th>
+				<th align="center" class="tableHeader">操作</th>
+			</tr>
+			<#list page.data as List>
+			
+			<tr>
+			<td>${List.type_name}</td>
+			<td>${List.name }</td>
+			<td>${List.construction_org }</td>
+			<td>${List.supervising_org}</td>
+			<td>${List.supervisor }</td>
+			<td>${List.start_time }</td>
+			<td>${List.end_time }</td>
+			<td>${List.PM }</td>
+			<td>${List.PM_phone }</td>
+			<td>${List.abarbeitungCount }</td>
+			<td>${List.contract_amount }</td>
+			<td>${List.no_tax_amount }</td>
+			<td>${List.unpaid}</td>
+			<td>${List.guarantee }</td>
+			<td>${List.expiration_end }</td>
+			<td>
+			<button class="button_common">
+				<a href="/manage/web_course_data_ById?project_id=${List.project_id }&log=1&project_state=8"><span class="button_span_common">详情</span></a>
+			</button>
+			 </td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/manage/web_project_log?pageindex=1&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/manage/web_project_log?pageindex=${(page.params.lastpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/manage/web_project_log?pageindex=${(page.params.nextpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/manage/web_project_log?pageindex=${page.totalPagecount}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+  </body>
+</html>

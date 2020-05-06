@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>问题整改列表</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>                 
+<script type="text/javascript" src="../js/classes.js"></script>
+
+<!-- 日期选择器 -->
+	
+<script async>
+	function fp_ready(){
+	//Regular flatpickr
+	document.getElementById("flatpickr-tryme").flatpickr();
+	}
+	</script>
+	<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+	<script async id="locale_script"></script>
+
+	<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+	
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/supervision/web_item_list?pageindex=1" method="post">
+		<span class="span_common">工程名称：</span>
+    <input type="text" name="name" value="${(page.params.name)!''}" class="input-text lh30" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">重要施工项类型：</span>
+     <select name="type_id" class="select"> 
+    							<option value=''>全部</option>
+                  				<#list page.params.type_data as type_data>
+                  				<option value="${(type_data.id)!'' }"  <#if type_data.id == page.params.type_id> selected="selected"</#if> >${type_data.name }</option>
+                  				</#list>
+     </select>&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">重要项施工日期：</span>
+     <input input id="flatpickr-tryme" placeholder="施工日期" type='text' class="input-text lh30" name="item_time" value="${(page.params.item_time)!''}" autocomplete="off" size="10" />&nbsp;&nbsp;&nbsp;&nbsp;
+  	 	
+  <input type="submit" 
+		class="submit_common" value="查询">
+		</form></div>
+	<#if activeAdmin.rid=='3'||activeAdmin.rid=='4'>
+	<a href="/supervision/goAddItem"><input type="button" name="button"
+											class="add_button" value="新增"></a>
+	<#else>
+	<a href="#"><input type="input" name="button" disabled="true"
+					   class="btn btn82" style="background: white;cursor:default;width: 1px"></a>
+  </#if>
+
+  
+   <table  border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;font-size: 4px;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">工程名称</th>
+				<th align="center" class="tableHeader">工程类型</th>
+				<th align="center" class="tableHeader">施工位置</th>
+				<th align="center" class="tableHeader">施工单位</th>
+				<th align="center" class="tableHeader">监理单位</th>
+				<th align="center" class="tableHeader">重要项类型</th>
+				<th align="center" class="tableHeader">重要项施工日期</th>
+				<th align="center" class="tableHeader">创建人</th>
+				<th align="center" class="tableHeader">创建时间</th>
+				<th align="center" class="tableHeader">操作</th>
+			</tr>
+			<#list page.data as List>
+			
+			<tr>
+			<td>${List.project_name }</td>
+			<td>${List.type_name}</td>
+			<td>${List.location}</td>
+			<td>${List.construction_org }</td>
+			<td>${List.supervising_org}</td>
+			<td>${List.item_type_name}</td>
+			<td>${List.item_data}</td>
+			<td>${List.create_by}</td>
+			<td>${List.create_at}</td>
+			<td>
+
+				<#if activeAdmin.rid=='3'||activeAdmin.rid=='4'>
+					<#if List.item_state=='1'>
+					<button class="button_common">
+						<a href="/supervision/goUpdateItem?item_id=${List.item_id }"><span class="button_span_common">编辑</span></a>
+					</button>&nbsp;
+					<#else>
+						<button class="button_common" style="background-color: buttonface;" disabled="true"><span class="button_span_common">编辑</span></button>&nbsp;
+					</#if>
+				<#else>
+				<button class="button_common" style="background-color: buttonface;" disabled="true"><span class="button_span_common">编辑</span></button>&nbsp;
+			</#if>
+
+			<button class="button_common"><a href="/supervision/web_item_data?item_id=${List.item_id }&project_id=${List.project_id}"><span class="button_span_common">查看</span></a></button>&nbsp;
+			 </td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/supervision/web_item_list?pageindex=1&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&item_time=${(page.params.item_time)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/supervision/web_item_list?pageindex=${(page.params.lastpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&item_time=${(page.params.item_time)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/supervision/web_item_list?pageindex=${(page.params.nextpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&item_time=${(page.params.item_time)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/supervision/web_item_list?pageindex=${page.totalPagecount}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&item_time=${(page.params.item_time)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+  </body>
+</html>

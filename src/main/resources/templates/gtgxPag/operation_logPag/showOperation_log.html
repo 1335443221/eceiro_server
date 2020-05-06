@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>工作组管理</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+<script type="text/javascript">
+$(function(){
+	$(".shanchu").click(function(){
+		var id = $(this).attr('id');
+		if(confirm("确认删除么？")){
+			$.ajax({
+				url:"/gtgx/checkGroup",
+				type:"post",
+				data:{groupid:id},
+				dataType:"text",
+				success:function(e){
+				if(e>0){
+					alert("此工作组下有关联信息,无法删除");
+				}else{
+					alert("删除成功");
+					location='/gtgx/deleteGroupById?id='+id;
+				}
+				}
+			});
+	};
+});
+});
+	
+</script>
+</head>
+  <body>
+    <div style="float:right">
+  
+   <table border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">用户ID</th>
+				<th align="center" class="tableHeader">用户名</th>
+				<th align="center" class="tableHeader">行为</th>
+				<th align="center" class="tableHeader">时间</th>
+			</tr>
+			<#list page.data as operation_logList>
+			<tr>
+			<td>${operation_logList.userInfo.id}</td>
+			<td>${operation_logList.userInfo.user_name }</td>
+			<td>${operation_logList.operation }</td>
+			<td>${operation_logList.otime }</td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/gtgx/showOperation_log?pageindex=1&key=${(page.params.key)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/showOperation_log?pageindex=${(page.params.lastpage)!''}&key=${(page.params.key)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/showOperation_log?pageindex=${(page.params.nextpage)!''}&key=${(page.params.key)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/gtgx/showOperation_log?pageindex=${page.totalPagecount}&key=${(page.params.key)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+</div> 
+		
+		
+  </body>
+</html>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.Malfunction_LogDao">
+
+	
+<!-- resultMap映射 -->
+<resultMap type="MalfunctionLogInfo" id="Malfunction_LogResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="status" column="status"/>
+		<result property="fix_by" column="type"/>
+		<result property="appoint_by" column="source"/>
+		<result property="reason" column="reason"/>
+		<result property="appoint_at" column="appoint_at"/>
+		<result property="accept_at" column="accept_at"/>
+		<result property="fix_at" column="fix_at"/>
+		<result property="check_at" column="check_at"/>
+		
+		<!-- 关联信息 malfunctionInfo-->
+		<association property="malfunctionInfo" javaType="MalfunctionInfo">
+			<id property="id" column="maid"/>
+		<!--一般属性 -->
+			<result property="location" column="mlocation"/>
+			<result property="text_desc" column="mtext_desc"/>
+			<result property="createUserInfo.user_name" column="cuname"/>
+			<result property="fixUserInfo.user_name" column="funame"/>
+			<result property="type" column="mtype"/>
+			<result property="question" column="mquestion"/>
+			<result property="create_at" column="mcreate_at"/>
+			<result property="material1" column="mmaterial"/>
+			<result property="source" column="msource"/>
+		</association>
+		
+		
+			<collection property="supportInfoList" ofType="SupportInfo" javaType="java.util.List">
+			 <result property="createUserInfo.user_name" column="suname"/>
+       		 <result property="support_staff" column="support_staff"/>
+       		  <result property="id" column="sid"/>
+       		 </collection>
+       		 
+       		 <collection property="materialList" ofType="MaterialInfo" javaType="java.util.List">  
+       		 <result property="name" column="maname"/>
+       		 <result property="number" column="manumber"/>
+       		 
+       		 </collection>
+</resultMap>
+
+
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="Malfunction_LogResult">
+		SELECT ml.*,m.id maid,m.question mquestion,m.location mlocation,m.text_desc mtext_desc,m.create_at mcreate_at,m.type mtype,m.source msource,ma.name maname,ma.number manumber,cu.user_name cuname,fu.user_name funame,su.user_name suname,s.support_staff,s.id sid
+		FROM malfunction_log ml INNER JOIN malfunction m ON ml.malfunction_id=m.id
+		INNER JOIN user fu ON m.fix_by=fu.id
+		INNER JOIN user cu ON m.create_by=cu.id
+		INNER JOIN `group` g ON cu.group_id=g.id
+		LEFT JOIN material_complete ma on ma.malfunction_id=m.id
+		LEFT JOIN support s ON s.malfunction_id=m.id
+		LEFT JOIN user su ON s.create_by =su.id
+		where 1=1
+		<if test="params.type != null and params.type !=''">
+			and m.type= #{params.type}   
+		</if>
+		<if test="params.status != null and params.status !=''">
+			and m.status = #{params.status}  
+		</if>
+		<if test="params.groupid != null and params.groupid !=''">
+		   and g.id=#{params.groupid}
+		</if>
+		<if test="params.beginTime != null and params.endTime !=null">
+			and m.create_at between #{params.beginTime} and #{params.endTime}
+		</if>
+		GROUP BY m.id
+		ORDER BY m.create_At desc
+	</select> 
+	
+	
+	
+	<select id="getAllMalfunction_Log"  parameterType="String" resultMap="Malfunction_LogResult">
+		select * from malfunction_Log where 1=1
+	</select> 
+	
+	
+	
+	
+	<delete id="deleteMalfunction_LogById" parameterType="Integer">
+	delete from malfunction_log where id=#{id}
+	</delete>
+	
+</mapper>

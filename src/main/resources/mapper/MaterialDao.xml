@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.MaterialDao">
+	
+
+	<insert id="insertMaterialAppointment" parameterType="java.util.Map">
+		insert into material_appointment
+		(malfunction_id,name,number,create_by,create_at,storekeeper)
+		values
+		(	#{mid},
+		 	#{name},
+			#{number},
+			#{uid},
+			#{create_at},
+			#{skid}
+		)
+	</insert>	
+	
+	
+	<insert id="insertPushMaterial" parameterType="java.util.Map">
+		insert into push_log
+		(status,push_type,malfunction_id,accept_type,accept_staff,push_at)
+		values
+		(	#{status},
+		 	#{push_type},
+			#{malfunction_id},
+			#{accept_type},
+			#{accept_staff},
+			#{push_at}
+		)
+	</insert>	
+	
+	
+	<insert id="insertMaterialComplete" parameterType="java.util.Map">
+		insert into material_complete
+		(malfunction_id,name,number,create_by,out_bound_date)
+		values
+		(	#{mid},
+		 	#{name},
+			#{number},
+			#{uid},
+			#{out_bound_date}
+		)
+	</insert>	
+	
+	
+	<select id="getMaterialLog" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT m.id,m.out_bound_date date,u.user_name user,m.name,m.number count FROM material_complete m
+	INNER JOIN user u ON m.create_by=u.id
+	inner join `group` g on g.id=u.group_id
+	where 1=1
+	<if test="gid != null and gid !=''">
+			and g.id = #{gid}  
+	</if>
+	<if test="uid != null and uid !=''">
+			and m.create_by = #{uid}  
+	</if>
+	
+	<if test="beginTime != null and beginTime !='' and endTime !='' and endTime !=null">
+			and m.out_bound_date between #{beginTime} and #{endTime}
+	</if>
+	order by m.out_bound_date desc
+	</select>
+	
+	
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultType="java.util.Map">
+	SELECT m.id,m.out_bound_date date,u.user_name user,m.name,m.number count FROM material_complete m
+	INNER JOIN user u ON m.create_by=u.id
+	where 1=1
+	<if test="params.userid != null and params.userid !=''">
+			and m.create_by = #{params.userid}  
+	</if>
+	
+	<if test="params.beginTime!= null and params.beginTime!='' and params.endTime!='' and params.endTime!=null">
+			and m.out_bound_date between #{params.beginTime} and #{params.endTime}
+	</if>
+	order by m.out_bound_date desc
+	</select>
+	
+	
+	
+	
+	<select id="materiallist_tokeeper" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT m.name,m.number count,m.create_at,m.create_by,u.user_name user FROM material_appointment m
+	INNER JOIN user u ON m.create_by=u.id
+	where 1=1
+	<if test="skid != null and skid !=''">
+	and  m.storekeeper=#{skid} 
+	</if>
+	group by m.create_at
+	order by m.create_at DESC
+	</select>
+	
+	
+	<select id="getMaxIdFromMA" parameterType="java.util.Map" resultType="Integer">
+	SELECT MAX(id) FROM material_appointment
+	</select>
+	
+	
+	<select id="materiallist_tokeeper2" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT m.name,m.number count FROM material_appointment m
+	INNER JOIN user u ON m.create_by=u.id
+	where 1=1
+	<if test="skid != null and skid !=''">
+	and  m.storekeeper=#{skid} 
+	</if>
+	<if test="create_at != null and create_at !=''">
+	and  m.create_at=#{create_at} 
+	</if>
+	<if test="create_by != null and create_by !=''">
+	and  m.create_by=#{create_by} 
+	</if>
+	order by m.create_at
+	</select>
+	
+	
+	
+	<update id="updateMalfunction" parameterType="java.util.Map">
+	update malfunction
+		<set>
+			<if test="status != null">status=#{status, jdbcType=INTEGER},</if>
+			<if test="finish_desc != null">finish_desc=#{finish_desc, jdbcType=VARCHAR},</if>
+			<if test="fix_at != null">fix_at=#{fix_at, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{mid}
+	</update>
+	
+	
+	<update id="updateSupport" parameterType="java.util.Map">
+	update support
+		<set>
+			<if test="m_status != null">m_status=#{m_status, jdbcType=INTEGER}</if>
+		</set>
+		where malfunction_id=#{mid}
+	</update>
+	
+	
+	<update id="updateMalfunctionLog" parameterType="java.util.Map">
+	update malfunction_log
+		<set>
+			<if test="status != null">status=#{status, jdbcType=INTEGER},</if>
+			<if test="fix_at != null">fix_at=#{fix_at, jdbcType=INTEGER}</if>
+		</set>
+		where malfunction_id=#{mid} 
+		and  fix_by=#{fix_by}
+	</update>
+	
+	
+	
+</mapper>

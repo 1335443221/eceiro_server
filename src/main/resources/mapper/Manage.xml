@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.ManageDao">
+<!-- 工程列表 -->
+<select id="project_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select  p.id project_id,p.name `name`,location,construction_org,supervising_org,PM,p.state project_state,s.state_name  from project p
+    inner join project_state s on p.state=s.state_id
+	where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="start != null and start !=''">
+			and p.state &lt; 7
+	</if>
+	<if test="filing != null and filing !=''">
+			and p.state = 7
+	</if>
+	order by p.create_at desc 
+	</select>
+	
+<select id="project_list_count" parameterType="java.util.Map" resultType="Integer">
+	select count(*)  from project p
+    inner join project_state s on p.state=s.state_id
+	where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="start != null and start !=''">
+			and p.state &lt; 6
+	</if>
+	<if test="filing != null and filing !=''">
+			and p.state = 6
+	</if>
+	order by p.create_at desc
+	</select>	
+	
+	
+<!-- 判斷是否是自己操作的 -->	
+<select id="project_state_create" parameterType="java.util.Map" resultType="Integer">
+	select create_by from 
+	<if test='state == "1"'>
+		`project_early`
+	</if>
+	<if test='state == "2"'>
+		`project_start`
+	</if>
+	<if test='state == "5"'>
+		`project_before_check`
+	</if>
+	<if test='state == "6"'>
+		`project_check`
+	</if>
+	where state=2 and project_id=#{project_id}
+	
+	</select>	
+	
+	
+	
+	
+<!-- 结算列表-->	
+<select id="project_settlement_list_name" parameterType="java.util.Map" resultType="String">
+	SELECT pay_state FROM project_settlement WHERE project_settlement.type_id=3 AND state=2  
+	<if test="project_id != null and project_id !=''">
+		AND project_id=#{project_id}
+	</if>
+	ORDER BY create_at DESC LIMIT 1 
+	</select>	
+	
+<!-- 结算列表总记录数-->	
+<select id="project_settlement_list_count" parameterType="java.util.Map" resultType="Integer">
+	SELECT  count(*) FROM project p
+    LEFT JOIN 
+    (SELECT * FROM project_settlement WHERE project_settlement.type_id=3 ) s ON p.id=s.project_id
+    where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')  
+	</if>
+	order by p.create_at desc
+	</select>	
+	
+	
+<!-- 工程分类列表 -->	
+<select id="project_type_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_type
+	</select>
+	
+<!-- 通过id获取工程信息 -->	
+<select id="getProjectById" parameterType="java.util.Map" resultType="java.util.LinkedHashMap">
+	SELECT  p.id project_id,p.name,location,construction_org,supervising_org,supervisor,supervisor_phone,PM,constructor,PM_phone,t.name type_name
+	FROM project p
+	INNER JOIN `project_type` t ON p.project_type=t.id 
+	where p.id=#{project_id}
+	</select>
+	
+<!-- 工程前期信息 -->
+<select id="project_early_data" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_early
+	where project_id=#{project_id}
+	<if test="detail_data != null and detail_data !=''">
+			and state=3 
+	</if>
+	</select>
+<!-- 工程开工信息 -->
+<select id="project_start_data" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_start
+	where project_id=#{project_id}
+	<if test="detail_data != null and detail_data !=''">
+			and state=3  
+	</if>
+	</select>
+<!-- 工程预验收信息 -->
+<select id="project_before_check_data" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_before_check
+	where project_id=#{project_id}
+	<if test="detail_data != null and detail_data !=''">
+			and state=3 
+	</if>
+	</select>
+<!-- 工程验收信息 -->
+<select id="project_check_data" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_check c
+	where c.project_id=#{project_id}
+	<if test="detail_data != null and detail_data !=''">
+			and c.state=3 
+	</if>
+	</select>
+<!-- 工程结算分类列表 -->	
+<select id="project_settlement_type_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_settlement_type
+	</select>	
+<!-- 工程结算信息 -->
+<select id="project_settlement_detail" parameterType="java.util.Map" resultType="java.util.Map">
+	select t.type_name name,s.* from project_settlement s 
+	inner join project_settlement_type t on s.type_id=t.id
+	where project_id=#{project_id}
+	<if test="settlement_id != null and settlement_id !=''">
+			and s.id &lt; #{settlement_id}
+	</if>
+	order by s.id DESC limit 1
+	</select>
+	
+<select id="project_settlement_lastId" parameterType="java.util.Map" resultType="Integer">
+	select s.id from project_settlement s 
+	inner join project_settlement_type t on s.type_id=t.id
+	where project_id=#{project_id}
+	order by s.id  limit 1
+	</select>	
+	
+	<select id="project_contract_amount" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT contract_amount FROM `project_settlement` s 
+	WHERE s.type_id=3 and contract_amount is not null
+	<if test="project_id != null and project_id !=''">
+	and s.project_id=#{project_id}
+	</if>
+	LIMIT 1
+	</select>	
+	
+	<!-- 新增工程 -->
+	<insert id="add_project" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="project_id">
+		insert into project
+		(name,project_type,location,construction_org,supervising_org,supervisor,supervisor_phone,PM,constructor,PM_phone,is_urgency,sign_file,owner_consent,state,save_state,create_at,create_by)
+		values
+		(	#{name},
+		 	#{project_type},
+			#{location},
+			#{construction_org},
+			#{supervising_org},
+			#{supervisor},
+			#{supervisor_phone},
+			#{PM},
+			#{constructor},
+			#{PM_phone},
+			#{is_urgency},
+			#{sign_file},
+			#{owner_consent},
+			#{state},
+			#{save_state},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert>
+	
+	<!-- 新增工程前期 -->
+	<insert id="add_project_early" parameterType="java.util.Map">
+		insert into project_early
+		(project_id,contract,qualification,sec_protocol,start_credential,io_credential,constructionfee,safety_training,people_information,csd_receipt,sop_certificate,is_securitycheck,record,drawings,`else`,state,create_by,create_at)
+		values
+		(	#{project_id},
+		 	#{contract},
+			#{qualification},
+			#{sec_protocol},
+			#{start_credential},
+			#{io_credential},
+			#{constructionfee},
+			#{safety_training},
+			#{people_information},
+			#{csd_receipt},
+			#{sop_certificate},
+				<choose>
+			<when test="is_securitycheck != null and is_securitycheck != ''">#{is_securitycheck},</when>
+			<otherwise>0,</otherwise>
+				</choose>
+			#{record},
+			#{drawings},
+			#{else},
+			#{state},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+	
+	<!-- 新增工程开工 -->
+	<insert id="add_project_start" parameterType="java.util.Map">
+		insert into project_start
+		(project_id,cpce_site,st_site,cstd_site,ts_form,situation_site,material,office_site,drawings,mie_inspection,cpsa_supervisor,`else`,state,create_by,create_at)
+		values
+		(	#{project_id},
+			#{cpce_site},
+			#{st_site},
+			#{cstd_site},
+			#{ts_form},
+			#{situation_site},
+			#{material},
+			#{office_site},
+			#{drawings},
+			#{mie_inspection},
+			#{cpsa_supervisor},
+			#{else},
+			#{state},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+	
+	<!-- 新增工程预验收 -->
+	<insert id="add_project_before_check" parameterType="java.util.Map">
+		insert into project_before_check
+		(project_id,before_check_bill,issue_list,problem_spot,ppss_form,`else`,state,create_by,create_at)
+		values
+		(	#{project_id},
+			#{before_check_bill},
+			#{issue_list},
+			#{problem_spot},
+			#{ppss_form},
+			#{else},
+			#{state},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+	
+	<!-- 新增工程验收 -->
+	<insert id="add_project_check" parameterType="java.util.Map">
+		insert into project_check
+		(project_id,cpsp_doc,spare_part,qa_form,problem_form,problem_site,`else`,expiration_begin,expiration_end,state,create_by,create_at)
+		values
+		(	#{project_id},
+			#{cpsp_doc},
+			#{spare_part},
+			#{qa_form},
+			#{problem_form},
+			#{problem_site},
+			#{else},
+			#{expiration_begin},
+			#{expiration_end},
+			#{state},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+	
+	<!-- 新增工程结算 -->
+	<insert id="add_project_settlement" parameterType="java.util.Map">
+		insert into project_settlement
+		(project_id,type_id,net_number,contract_amount,pay_state,tax_amount,tax_rate,no_tax_amount,receipt,refund,payment,investor,remark,state,create_by,create_at)
+		values
+		(	#{project_id},
+			#{type_id},
+			#{net_number},
+			#{contract_amount},
+			#{pay_state},
+			#{tax_amount},
+			#{tax_rate},
+			#{no_tax_amount},
+			#{receipt},
+			#{refund},
+			#{payment},
+			#{investor},
+			#{remark},
+			#{state},
+			#{create_by},
+			SYSDATE()
+		)
+	</insert>
+	
+	<!-- 修改工程前期信息 -->
+	<update id="update_project_early" parameterType="java.util.Map" >
+	update project_early
+		<set>
+			<if test="contract != null">contract=#{contract},</if>
+			<if test="qualification != null">qualification=#{qualification},</if>
+			<if test="sec_protocol != null">sec_protocol=#{sec_protocol},</if>
+			<if test="start_credential != null">start_credential=#{start_credential},</if>
+			<if test="io_credential != null">io_credential=#{io_credential},</if>
+			<if test="constructionfee != null">constructionfee=#{constructionfee},</if>
+			<if test="safety_training != null">safety_training=#{safety_training},</if>
+			<if test="people_information != null">people_information=#{people_information},</if>
+			<if test="csd_receipt != null">csd_receipt=#{csd_receipt},</if>
+			<if test="sop_certificate != null">sop_certificate=#{sop_certificate},</if>
+			<if test="is_securitycheck != null">is_securitycheck=#{is_securitycheck},</if>
+			<if test="record != null">record=#{record},</if>
+			<if test="drawings != null">drawings=#{drawings},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where project_id=#{project_id}
+	</update>
+	
+	<!-- 修改工程信息 -->
+	<update id="update_project" parameterType="java.util.Map" >
+	update `project`
+		<set>
+			<if test="name != null">name=#{name},</if>
+			<if test="project_type != null">project_type=#{project_type},</if>
+			<if test="location != null">location=#{location},</if>
+			<if test="construction_org != null">construction_org=#{construction_org},</if>
+			<if test="supervising_org != null">supervising_org=#{supervising_org},</if>
+			<if test="supervisor != null">supervisor=#{supervisor},</if>
+			<if test="supervisor_phone != null">supervisor_phone=#{supervisor_phone},</if>
+			<if test="PM != null">PM=#{PM},</if>
+			<if test="constructor != null">constructor=#{constructor},</if>
+			<if test="PM_phone != null">PM_phone=#{PM_phone},</if>
+			<if test="is_urgency != null">is_urgency=#{is_urgency},</if>
+			<if test="sign_file != null">sign_file=#{sign_file},</if>
+			<if test="owner_consent != null">owner_consent=#{owner_consent},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_at != null">create_at=#{create_at},</if>
+			<if test="create_by != null">create_by=#{create_by},</if>
+			<if test="save_state != null">save_state=#{save_state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<!-- 修改工程开工信息 -->
+	<update id="update_project_start" parameterType="java.util.Map" >
+	update project_start
+		<set>
+			<if test="cpce_site != null">cpce_site=#{cpce_site},</if>
+			<if test="st_site != null">st_site=#{st_site},</if>
+			<if test="cstd_site != null">cstd_site=#{cstd_site},</if>
+			<if test="ts_form != null">ts_form=#{ts_form},</if>
+			<if test="situation_site != null">situation_site=#{situation_site},</if>
+			<if test="material != null">material=#{material},</if>
+			<if test="office_site != null">office_site=#{office_site},</if>
+			<if test="drawings != null">drawings=#{drawings},</if>
+			<if test="mie_inspection != null">mie_inspection=#{mie_inspection},</if>
+			<if test="cpsa_supervisor != null">cpsa_supervisor=#{cpsa_supervisor},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where project_id=#{project_id}
+	</update>
+	
+	<!-- 修改工程预验收信息 -->
+	<update id="update_project_before_check" parameterType="java.util.Map" >
+	update project_before_check
+		<set>
+			<if test="before_check_bill != null">before_check_bill=#{before_check_bill},</if>
+			<if test="issue_list != null">issue_list=#{issue_list},</if>
+			<if test="problem_spot != null">problem_spot=#{problem_spot},</if>
+			<if test="ppss_form != null">ppss_form=#{ppss_form},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where project_id=#{project_id}
+	</update>
+	
+	<!-- 修改工程验收信息 -->
+	<update id="update_project_check" parameterType="java.util.Map" >
+	update project_check
+		<set>
+			<if test="cpsp_doc != null">cpsp_doc=#{cpsp_doc},</if>
+			<if test="spare_part != null">spare_part=#{spare_part},</if>
+			<if test="qa_form != null">qa_form=#{qa_form},</if>
+			<if test="problem_form != null">problem_form=#{problem_form},</if>
+			<if test="problem_site != null">problem_site=#{problem_site},</if>
+			<if test="expiration_begin != null">expiration_begin=#{expiration_begin},</if>
+			<if test="expiration_end != null">expiration_end=#{expiration_end},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where project_id=#{project_id}
+	</update>
+	
+	<!-- 修改工程结算信息 -->
+	<update id="update_project_settlement" parameterType="java.util.Map" >
+	update project_settlement
+		<set>
+			<if test="type_id != null">type_id=#{type_id},</if>
+			<if test="net_number != null">net_number=#{net_number},</if>
+			<if test="contract_amount != null">contract_amount=#{contract_amount},</if>
+			<if test="pay_state != null">pay_state=#{pay_state},</if>
+			<if test="tax_amount != null">tax_amount=#{tax_amount},</if>
+			<if test="tax_rate != null">tax_rate=#{tax_rate},</if>
+			<if test="no_tax_amount != null">no_tax_amount=#{no_tax_amount},</if>
+			<if test="receipt != null">receipt=#{receipt},</if>
+			<if test="refund != null">refund=#{refund},</if>
+			<if test="payment != null">payment=#{payment},</if>
+			<if test="investor != null">investor=#{investor},</if>
+			<if test="state != null">state=#{state},</if>
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<!-- 修改工程合同总款 -->
+	<update id="update_project_contract_amount" parameterType="java.util.Map" >
+	update project_settlement
+		<set>
+			<if test="contract_amount != null">contract_amount=#{contract_amount}</if>
+		</set>
+		where project_id=#{project_id} and type_id=3
+	</update>
+	<!--============================= web端======================================== -->
+	
+<select id="web_project_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT  p.id project_id,p.NAME `name`,t.name type_name,p.location,p.construction_org,p.supervising_org,
+	p.save_state,p.is_urgency,p.state project_state,s.state_name,u.user_name create_by,p.create_at FROM project p
+    LEFT JOIN project_state s ON p.state=s.state_id
+    LEFT JOIN `project_type` t ON p.project_type=t.id
+    left join `user` u on p.create_by=u.id
+    where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+			and p.project_type =#{type_id}
+	</if>
+	<if test="state_id != null and state_id !=''">
+			and p.state =#{state_id}
+	</if>
+	order by p.create_at desc 
+	</select>
+	
+	
+	<select id="web_project_state_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from project_state
+	</select>
+	
+	<select id="web_project_data_ById" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT p.*,t.name type_name FROM project p
+	INNER JOIN `project_type` t ON p.project_type=t.id  
+	where 1=1
+	<if test="project_id != null and project_id !=''">
+			and p.id =#{project_id}
+	</if>
+	</select>
+	
+	
+	
+	<select id="web_project_settlement_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * FROM    
+    (SELECT  ps.create_at screate_at,u.user_name screate_by,p.id project_id,p.NAME `name`,t.id project_type,t.name type_name,
+    p.location,p.construction_org,p.supervising_org,p.save_state,p.is_urgency,p.state project_state,s.state_name,
+    p.create_at,p.create_by FROM project p
+    LEFT JOIN project_state s ON p.state=s.state_id
+    LEFT JOIN `project_type` t ON p.project_type=t.id
+    LEFT JOIN `project_settlement` ps ON ps.project_id=p.id
+    LEFT JOIN `user` u ON ps.create_by=u.id
+    
+    ORDER BY ps.create_at DESC) pp
+    where 1=1
+	<if test="name != null and name !=''">
+			and pp.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+			and pp.project_type =#{type_id}
+	</if>
+	<if test="state_id != null and state_id !=''">
+			and pp.project_state =#{state_id}
+	</if>
+	GROUP BY project_id
+    ORDER BY screate_at DESC
+	</select>
+	
+	
+	
+	<select id="web_update_settlement_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT ps.*,u.user_name,t.type_name  FROM `project_settlement` ps
+	INNER JOIN `project_settlement_type` t ON ps.type_id=t.id
+	inner join `user` u on ps.create_by=u.id
+	WHERE 1=1
+	<if test="project_id != null and project_id !=''">
+			and ps.project_id=#{project_id}
+	</if>
+	<if test="state != null and state !=''">
+			and ps.state=#{state}
+	</if>
+    ORDER BY ps.create_at DESC
+	</select>
+	
+	
+	
+	<select id="project_settlement_ById" parameterType="java.util.Map" resultType="java.util.Map">
+	select t.type_name name,s.* from project_settlement s 
+	inner join project_settlement_type t on s.type_id=t.id
+	where 1=1
+	<if test="settlement_id != null and settlement_id !=''">
+			and s.id = #{settlement_id}
+	</if>
+	
+	</select>
+	
+	
+	
+	<select id="showProjectLog" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT  p.id project_id,t.name type_name,p.name `name`,location,construction_org,supervising_org,p.supervisor,p.PM,p.PM_phone,ps.create_at start_time,pc.create_at end_time,pc.expiration_end  FROM project p
+    INNER JOIN `project_type` t ON t.id=p.project_type
+    INNER JOIN `project_start` ps ON p.id=ps.project_id
+    INNER JOIN `project_check` pc ON p.id=pc.project_id
+    WHERE p.state=7
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+			and p.project_type =#{type_id}
+	</if>
+	<if test="beginTime != null and endTime !=''">
+		and ps.create_at between #{beginTime} and #{endTime}
+	</if>
+	order by ps.create_at desc 
+	</select>
+	
+	
+	<select id="abarbeitungCountByPid" parameterType="java.util.Map" resultType="Integer">
+	SELECT COUNT(*) FROM `abarbeitung` WHERE 1=1
+	<if test="project_id != null and project_id !=''">
+			and project_id=#{project_id}
+	</if>
+	</select>
+	
+	<select id="settlementAmountByPid" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT SUM(no_tax_amount) no_tax_amount,contract_amount FROM `project_settlement` ps
+	WHERE ps.state=2
+	<if test="type_id != null and type_id !=''">
+	and ps.type_id=#{type_id}
+	</if>
+	<if test="project_id != null and project_id !=''">
+	and ps.project_id=#{project_id}
+	</if>
+	</select>
+	
+	
+</mapper>

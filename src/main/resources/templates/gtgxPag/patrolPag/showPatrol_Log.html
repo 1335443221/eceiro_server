@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>人员巡检报表</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+
+<!-- 日期选择器 -->
+	
+<script async>
+	function fp_ready(){
+	//Regular flatpickr
+	document.getElementById("flatpickr-tryme").flatpickr();
+	document.getElementById("flatpickr-tryme2").flatpickr();
+	}
+	</script>
+	<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+	<script async id="locale_script"></script>
+
+	<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/gtgx/getAllPatrol_Log?pageindex=1" method="post">
+     <span class="span_common">班组：</span>
+    <select name="groupid"   class="select">
+    <option value="">所有</option>
+    <#list page.params.groupList as groupList>
+   	<option value="${groupList.id}" <#if groupList.id == page.params.groupid> selected="selected"</#if>>${groupList.name} </option>
+ 	</#list>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+   
+ <span class="span_common">巡检人：</span>
+    <select name="userid"   class="select">
+    <option value="">所有</option>
+    <#list page.params.Userlist as Userlist>
+    <option value="${Userlist.id}" <#if Userlist.id == page.params.userid> selected="selected"</#if> >${Userlist.user_name} </option>
+    </#list>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+   
+  <span class="span_common">查询时间：</span>
+  	 	<input input id="flatpickr-tryme" placeholder="起始时间" type='text' class="input-text lh30" name="beginTime" value="${(page.params.beginTime)!''}" autocomplete="off" readonly="readonly"  size="10"/>
+  	 至
+  	 	<input input id="flatpickr-tryme2" placeholder="结束时间" type='text' class="input-text lh30" name="endTime" value="${(page.params.endTime)!''}" autocomplete="off" readonly="readonly" size="10"/>&nbsp;&nbsp;&nbsp;&nbsp;
+  <input type="submit" name="button"
+		class="submit_common" value="查询">
+		</form></div>
+		
+		<a href="/gtgx/exportPatrol_Log?groupid=${(page.params.groupid)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}&userid=${(page.params.userid)!''}">
+		<button id="js-export" type="button"class="download_button" >下载</button>
+</a>
+		
+  
+   <table border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th width="70" align="center" class="tableHeader">序号</th>
+				<th align="center" class="tableHeader">日期</th>
+				<th align="center" class="tableHeader">巡检人</th>
+				<th align="center" class="tableHeader">巡检开始时间</th>
+				<th align="center" class="tableHeader">巡检结束时间</th>
+				<th align="center" class="tableHeader">巡检次数</th>
+				<th align="center" class="tableHeader">巡检点数量</th>
+				<th align="center" class="tableHeader">巡检正常</th>
+				<th align="center" class="tableHeader">巡检故障</th>
+			</tr>
+			<#list page.data as PatrolList>
+			<tr>
+			<td align="center">${PatrolList_index+1+(page.pageindex-1)*page.pagesize}</td>
+			<td>${PatrolList.time}</td>
+			<td>${PatrolList.patrolUserInfo.user_name}</td>
+			<td>${PatrolList.first_clock_at1}</td>
+			<td>${PatrolList.second_clock_at1}</td>
+			<td>${PatrolList.patrolInfo.count}</td>
+			<td>1</td>
+			<td><#if PatrolList.malcount==0>1<#else>0 </#if></td>
+			<td>${PatrolList.malcount}</td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/gtgx/getAllPatrol_Log?pageindex=1&groupid=${(page.params.groupid)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}&userid=${(page.params.userid)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/getAllPatrol_Log?pageindex=${(page.params.lastpage)!''}&groupid=${(page.params.groupid)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}&userid=${(page.params.userid)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/getAllPatrol_Log?pageindex=${(page.params.nextpage)!''}&groupid=${(page.params.groupid)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}&userid=${(page.params.userid)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/gtgx/getAllPatrol_Log?pageindex=${page.totalPagecount}&groupid=${(page.params.groupid)!''}&beginTime=${(page.params.beginTime)!''}&endTime=${(page.params.endTime)!''}&userid=${(page.params.userid)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+</div> 
+		
+  </body>
+</html>

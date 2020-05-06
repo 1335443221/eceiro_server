@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+ 
+  </head>
+  <body>
+  <div class="lbOverlay"></div>
+  <div class="hidden_pro_au">
+      <p style="text-align: center">上传图片中……</p>
+      <progress max="80" id="progress">您的浏览器不支持progress元素</progress>
+  </div>
+
+    <div id="forms" class="mt10">
+        <div class="box">
+          
+         <div class="box_border">
+            <div class="box_top"><b class="pl15">工程验收阶段-资料补录</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                  <tr>
+                  <td class="td_right">施工方提供竣工资料（电子档及图纸等）：</td>
+                  <td>
+                  <span class="cpsp_docFileSpan">
+                  <#list project.cpsp_doc as fileList>
+     	 	 <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                      <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+      		 </div>
+                  </#list>
+                  </span>
+                   <input type="file"  id="cpsp_docFile"  onchange="addFile(this,'cpsp_docFile')"  class="input-text lh30" >
+                  </td>
+                  </tr>
+
+
+                  <tr>
+                  <td class="td_right">备品备件：</td>
+                  <td>
+        		<span class="spare_partFileSpan">
+                  <#list project.spare_part as fileList>
+          <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                    <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+       		</div>
+                  </#list>
+                  </span>
+                 <input type="file"  id="spare_partFile"  onchange="addFile(this,'spare_partFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                  	<tr>
+                  <td class="td_right">四方验收单:</td>
+                  <td>
+                 <span class="qa_formFileSpan">
+                  <#list project.qa_form as fileList>
+          <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                     <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+       		</div>
+                  </#list>
+                  </span>
+                  <input type="file"  id="qa_formFile"  onchange="addFile(this,'qa_formFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+
+                  	<tr>
+                  <td class="td_right">问题整改单:</td>
+                  <td>
+                  <span class="problem_formFileSpan">
+                  <#list project.problem_form as fileList>
+          <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                      <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+       		</div>
+                  </#list>
+                  </span>
+                  <input type="file"  id="problem_formFile"  onchange="addFile(this,'problem_formFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+
+                  	<tr>
+                  <td class="td_right">问题整改现场:</td>
+                 <td>
+                 <span class="problem_siteFileSpan">
+                  <#list project.problem_site as fileList>
+          <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                     <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+       		</div>
+                  </#list>
+                  </span>
+                  <input type="file"  id="problem_siteFile"  onchange="addFile(this,'problem_siteFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+
+                  	<tr>
+                  <td class="td_right">其他:</td>
+                 <td>
+                  <span class="elseFileSpan">
+                  <#list project.else as fileList>
+          <div class="fileDiv" data-name="${fileList.name}">
+                  <#if fileList.type?index_of("image")!=-1>
+		    	 <a href="${fileList.url}" type="${fileList.type}" target=_blank><img style="width: 70px;height: 70px;" src="${fileList.url}" /></a>
+				  <#else>
+		        <a href="${fileList.url}" type="${fileList.type}" target=_blank>${fileList.name}</a>
+                  </#if>
+                      <#if activeAdmin.rid=='3'>
+                      <a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a>
+      		            </#if>
+       		</div>
+                  </#list>
+                  </span>
+                  <input type="file"  id="elseFile"  onchange="addFile(this,'elseFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+
+                 	<tr>
+                  <td class="td_right">质保期时间:</td>
+                  <td>
+                  <input input id="flatpickr-tryme" placeholder="起始时间" type='text' class="input-text lh30" name="beginTime" value="${(project.expiration_begin)!''}" autocomplete="off" readonly="readonly" />
+  					 至
+  	 			  <input input id="flatpickr-tryme2" placeholder="结束时间" type='text' class="input-text lh30" name="endTime" value="${(project.expiration_end)!''}" autocomplete="off" readonly="readonly"/>
+                  </td>
+                   </tr>
+
+                 <tr id="tijaioTr">
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="submit" class="btn btn82 btn_save2" value="补录" style="margin-left: 50px;">
+                   </td>
+                 </tr>
+               </table>
+               </form>
+            </div>
+          </div>
+
+        </div>
+     </div>
+
+  <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script>
+   	<!-- 日期选择器 -->
+
+	<script async>
+		function fp_ready(){
+		//Regular flatpickr
+		document.getElementById("flatpickr-tryme").flatpickr();
+		document.getElementById("flatpickr-tryme2").flatpickr();
+		}
+		</script>
+		<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+		<script async id="locale_script"></script>
+
+		<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+		<!--[if IE]>
+			<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+		<![endif]-->
+
+	<script type="text/javascript">
+	$(document).ready(function () {
+	        //文件删除按钮
+	        $(document).on('click','.remove-file-btn',function () {
+	        	if(confirm("确认删除么？")){
+	        		$(this).closest('.fileDiv').remove();
+	        	}
+	        })
+	        //保存按钮
+	        $(document).on('click','#save',function () {
+	            submitForm(2);
+	        })
+
+	        //提交按钮
+	        $(document).on('click','#submit',function () {
+	        	if(confirm("确认补录么？补录后将无法修改")){
+	        		 submitForm(4);
+	        	}
+	        })
+	    })
+
+
+    	function submitForm(state){
+			var appdata = {};
+            appdata.create_by=${activeAdmin.id};
+            appdata.project_id=${param.project_id};
+            appdata.state=state;
+            appdata.cpsp_doc= fileToList('cpsp_docFileSpan');
+            appdata.spare_part= fileToList('spare_partFileSpan');
+            appdata.qa_form= fileToList('qa_formFileSpan');
+            appdata.problem_form= fileToList('problem_formFileSpan');
+            appdata.problem_site= fileToList('problem_siteFileSpan');
+            appdata.else= fileToList('elseFileSpan');
+            appdata.expiration_begin= $("input[name='beginTime']").val();
+            appdata.expiration_end= $("input[name='endTime']").val();
+            show();
+          //提交数据
+            $.ajax({
+		        url:'/manage/web_update_check',
+		        secureuri:false,
+		        traditional:true,
+		        contentType:"application/json",
+		        type: 'POST',
+	            data: JSON.stringify(appdata),
+		        dataType: 'json',//返回数据的类型
+		        success: function (data) {//添加成功
+		            if(data>0){
+                        goprogress();
+		            }
+		        }
+		    });
+        }
+    function show(){
+        $(".lbOverlay").css({"height":window.screen.availHeight});
+        $(".lbOverlay").show();
+        var st=$(document).scrollTop(); //页面滑动高度
+        var objH=$(".hidden_pro_au").height();//浮动对象的高度
+        var ch=$(window).height();//屏幕的高度
+        var objT=Number(st)+(Number(ch)-Number(objH))/2;   //思路  浮动高度+（（屏幕高度-对象高度））/2
+        $(".hidden_pro_au").css("top",objT);
+        var sl=$(document).scrollLeft(); //页面滑动左移宽度
+        var objW=$(".hidden_pro_au").width();//浮动对象的宽度
+        var cw=$(window).width();//屏幕的宽度
+        var objL=Number(sl)+(Number(cw)-Number(objW))/2; //思路  左移浮动宽度+（（屏幕宽度-对象宽度））/2
+        $(".hidden_pro_au").css("left",objL);
+        $(".hidden_pro_au").slideDown("20000");//这里显示方式多种效果
+    }
+    function goprogress(){
+        var pro=document.getElementById("progress");
+        gotoend(pro,0);
+    }
+    function gotoend(pro,value){
+        var value=value+1;
+        pro.value=value;
+        if(value<100) {
+            setTimeout(function(){gotoend(pro,value);},10)
+        }else{
+            setTimeout(function(){alert("补录成功!")},10);
+            window.location.href="/manage/web_check_data_ById?project_id=${param.project_id }";
+        }
+    }
+	function fileToList(Cname){   //遍历div  把file改为list
+		var List=[];
+		var order = 1;
+		$('.'+Cname+" .fileDiv").each(function (i,item) {
+            var fileObj={};
+            fileObj.name= $(item).data('name');
+            fileObj.url = $(item).find('a').attr('href');
+            fileObj.type = $(item).find('a').attr('type');
+            fileObj.order = order++;
+            List.push(fileObj);
+        });
+        return List;
+	}
+
+
+	function addFile(obj,Cname){  //上传文件到七牛
+			var timestamp = (new Date()).getTime(); //时间戳
+			var formData = new FormData();
+	        var file_obj = obj.files[0];
+	        if(file_obj==null){  //没有选择文件 跳出方法
+	        	return false
+	        }
+	        formData.append("token","${token}");  //token
+	        formData.append("key",timestamp+file_obj.name);  //name
+	        formData.append('file',file_obj);   //文件
+	        var fileName=file_obj.name;
+	        var strtype = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();//（把路径中的所有字母全部转换为小写）
+	        strtype=fileType(strtype);
+                if(strtype==null||strtype==""){
+                alert("不支持的文件类型!请重新选择!");
+                return false;
+                  }
+		    $.ajax({
+		        url:'http://up-z1.qiniu.com/',
+		        secureuri:false,
+		        type: 'POST',
+	            data: formData,
+		        dataType: 'json',//返回数据的类型
+		        processData:false,  //
+                contentType: false,
+		        success: function (data) {//上传成功
+		        	$('#'+Cname).val('');
+		        	var url="${QiniuUrl}"+data.key;
+		        	var str ='';
+		        	if(file_obj.type.indexOf("image")!=-1){ //包含 是图片
+		        		   str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+		        		   '<a href="'+url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+url+'" /></a>'+
+		        		   '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+		        	}else{
+		        		str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+		        		'<a href="'+url+'" type="'+strtype+'" target=_blank>'+file_obj.name+'</a>'+
+		        		'<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+		        	}
+		        	$('.'+Cname+"Span").append(str);
+		        }
+		    });
+	}
+	
+	function fileType(type){
+		var typeList=[
+			{suffix:".png,.jpg,.gif,.bmp,.jpeg",type:"image"},
+			{suffix:".doc,.docx,.word,.dotx,.dotm,.docm",type:"word"},
+			{suffix:".pdf",type:"pdf"},
+			{suffix:".ppt,.pptx,.ppsx,.pptm,.ppsx,.potx",type:"ppt"},
+			{suffix:".txt",type:"txt"},
+			{suffix:".cad",type:"cad"},
+			{suffix:".xlsx,.xls,.xlsm,.xlsb,.xlsm,.xlam",type:"excel"}
+			];
+        var result_type=null;
+        for(var i=0;i<typeList.length;i++){
+            if(typeList[i].suffix.indexOf(type)!=-1){
+                result_type=typeList[i].type;
+            }
+        }
+        return result_type;
+	}
+</script> 
+</body>
+</html>
+                   

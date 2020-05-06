@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.Operation_logDao">
+
+	
+<!-- resultMap映射 -->
+	<resultMap type="Operation_log" id="operation_logResult">
+		<!-- 主键 -->
+		<id property="id" column="oid"/>
+		
+		<!-- 一般属性 -->
+		<result property="operation" column="operation"/>
+		<result property="otime" column="otime"/>
+		
+		<association property="userInfo" javaType="UserInfo">
+			<id property="id" column="id"/>
+		<!--一般属性 -->
+		<result property="job_number" column="job_number"/>
+		<result property="login_name" column="login_name"/>
+		<result property="user_name" column="user_name"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="cellphone" column="cellphone"/>
+		<result property="password" column="password"/>
+		<result property="portrait" column="portrait"/>
+		<result property="create_at" column="create_at"/>
+		<result property="update_at" column="update_at"/>
+		</association>
+	
+</resultMap>
+	
+	
+    <insert id="insertOperation_log" parameterType="java.util.Map">
+	insert into operation_log
+		(user_id,operation,otime)
+		values
+		(	#{id},
+			#{operation},
+			SYSDATE()
+		)
+	</insert>
+	
+	
+	<!-- 分页查询 -->
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="operation_logResult">
+		SELECT o.id oid,o.operation,o.otime,u.* FROM operation_log o
+		INNER JOIN user u ON o.user_id=u.id
+		WHERE u.login_name !='developer'
+		ORDER BY o.otime DESC
+	</select>
+	
+	
+	<!-- 分页查询 -->
+	<select id="findPage2" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="operation_logResult">
+		SELECT o.id oid,o.operation,o.otime,u.* FROM operation_log o
+		INNER JOIN user u ON o.user_id=u.id
+		ORDER BY o.otime DESC
+	</select>
+	
+	
+</mapper>

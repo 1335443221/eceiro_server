@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.VersionDao">
+<!-- resultMap映射 -->
+<resultMap type="VersionInfo" id="VersionResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="versionInfo" column="versionInfo"/>
+		<result property="description" column="description"/>
+		<result property="download_url" column="download_url"/>
+		<result property="is_force" column="is_force"/>
+		<result property="upload_at" column="upload_at"/>
+</resultMap>
+
+	<select id="getAllVersion"  parameterType="String" resultMap="VersionResult">
+		select * from version where 1=1
+	</select> 
+	
+	<select id="getVersionById"  parameterType="Integer" resultMap="VersionResult">
+		select * from version where id=#{id}
+	</select> 
+	
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultMap="VersionResult">
+		select * from version where 1=1 ORDER BY id DESC
+	</select> 
+	
+	<select id="getMaxIdVersion" resultMap="VersionResult">
+	SELECT * FROM version where id=(SELECT MAX(id) FROM version )
+	</select>
+	
+	
+	<select id="checkVersion" parameterType="java.util.HashMap" resultMap="VersionResult">
+	select * from version where version=#{versionInfo}
+	   <if test="id != null and id !=''">
+			and id != #{id}  
+		</if>
+	</select>
+	<insert id="insertVersion" parameterType="VersionInfo">
+		insert into version
+		(version,description,download_url,is_force,upload_at)
+		values
+		(	#{version},
+			#{description},
+			#{download_url},
+			#{is_force},
+			SYSDATE()
+		)
+	</insert>	
+	
+	
+	<update id="updateVersionById" parameterType="VersionInfo">
+	update version
+		<set>
+			<if test="version != null">version=#{version, jdbcType=VARCHAR},</if>
+			<if test="description != null">description=#{description, jdbcType=VARCHAR},</if>
+			<if test="download_url != null">download_url=#{download_url, jdbcType=VARCHAR},</if>
+			<if test="is_force != null">is_force=#{is_force, jdbcType=INTEGER},</if>
+			<if test="upload_at != null and upload_at != 0">upload_at=#{upload_at, jdbcType=INTEGER}</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	
+	<delete id="deleteVersionById" parameterType="Integer">
+	delete from version where id=#{id}
+	</delete>
+	
+	
+	<select id="getMaxIdQrCode" resultType="java.util.Map">
+	SELECT * FROM app_qrcode where id=(SELECT MAX(id) FROM app_qrcode )
+	</select>
+	
+	<insert id="insertQrCode" parameterType="java.util.Map">
+		insert into app_qrcode
+		(url,img_url,create_at)
+		values
+		(	#{url},
+			#{img_url},
+			SYSDATE()
+		)
+	</insert>
+	
+</mapper>

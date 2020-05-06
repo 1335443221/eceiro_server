@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>showFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	
+	</script> 
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">工程开工阶段-汇总资料</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                  <tr>
+                  <td class="td_right">施工人员和施工器具进场：</td>
+                  <td>
+                  <#list project.cpce_site as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                  </tr>
+                  
+                  
+                  <tr>
+                  <td class="td_right">安全培训现场：</td>
+                  <td>
+                  <#list project.st_site as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                  	<tr>
+                  <td class="td_right">施工安全技术交底现场:</td>
+                  <td>
+                  <#list project.cstd_site as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">培训签字表:</td>
+                  <td>
+                  <#list project.ts_form as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+
+                  	<tr>
+                  <td class="td_right">施工现场现有情况:</td>
+                  <td>
+                  <#list project.situation_site as fileList>
+
+                  <#if fileList.type =='image'||fileList.type =='image'>
+
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+
+                  	<tr>
+                  <td class="td_right">物料管理（堆放场地/垃圾/注意事项/物料特殊性质等）:</td>
+                 <td>
+                  <#list project.material as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">办公场所:</td>
+                 <td>
+                  <#list project.office_site as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">施工图纸（现场）:</td>
+                  <td>
+                  <#list project.drawings as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">主材及重要设备报验（监理负责）：</td>
+                  <td>
+                  <#list project.mie_inspection as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                  	<tr>
+                  <td class="td_right">甲方及监理签字批准的施工方案:</td>
+                  <td>
+                  <#list project.cpsa_supervisor as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">其他:</td>
+                  
+                   <td>
+                  <#list project.else as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                </tr>
+              
+                <tr>                                             
+                  <td class="td_right">创建时间:</td>
+                  <td>
+                  <p>${project.create_at}</p>
+                  </td>
+                </tr>
+                
+               </table>
+            </div>
+          </div>
+          
+        </div>
+     </div>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  <style type="text/css">
+  .report-left{
+  width: 250px;
+  text-align: center;
+  }
+  .report-right{
+  text-align: left;
+  }
+  
+  </style>
+    <script async>
+        function fp_ready(){
+            //Regular flatpickr
+            document.getElementById("flatpickr-tryme").flatpickr();
+        }
+    </script>
+    <script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+    <script async id="locale_script"></script>
+
+    <link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+    <!--[if IE]>
+    <script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">工程施工监护上报历史信息</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" style="width:1000px;" >
+                  <tr>
+                  <td class="td_right">工程名称：</td>
+                   <td><p>${data.name}</p></td>
+                   <td class="td_right">工程类型：</td>
+                  <td><p>${data.type_name}</p></td>
+                  <td class="td_right">施工位置：</td>
+                  <td><p>${data.location}</p></td>
+                  </tr>
+                 <tr>
+                   <td class="td_right">施工单位：</td>
+                  <td><p>${data.construction_org}</p></td>
+                   <td class="td_right">监理单位：</td>
+                  <td><p>${data.supervising_org}</p></td>
+                  </tr>
+                   <tr>
+                       <td class="td_right">选择监护时间：</td>
+                       <td><input id="flatpickr-tryme" placeholder="监护时间" type='text' class="input-text lh30" name="reportTime"  autocomplete="off"/>
+                           <input type="submit" name="button" class="btn btn82 btn_search" onclick="search()" value="搜索"></td>
+                   </tr>
+               </table>
+            </div>
+             <div>
+             <hr style= "border:1px dashed #000" width="100%"/>
+                <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                <tbody id="loadmore">
+
+    <#list data.supervision_list as supervision_data>
+                <tr><td colspan="2"><span style="font-size: 16px;font-weight:700;padding-left: 200px;">监护详情--${supervision_data.department}</span></td></tr>
+                 <tr>
+                   <td><p style="font-size: 14px;font-weight:600;text-align: center;">名称</p></td>
+                   <td style="text-align: left;"><p style="font-size: 14px;font-weight:600">内容</p></td>
+                </tr>
+                 
+                 <tr>
+                   <td class="report-left"><p>${supervision_data.create_at}</p></td>
+                   <td class="report-right"><p>${supervision_data.department} </p></td>
+                </tr>
+                <#list supervision_data.report_data as report_data>
+                <tr>
+                <td class="report-left">${report_data.item_name}</td>
+                <td class="report-right">
+                <#list report_data.content as content>
+                    <#if content.type?index_of("image")!=-1>
+                    <a href="${content.url}" type="${content.type}" target=_blank><img style="width: 70px;height: 70px;" src="${content.url}" /></a>
+                    <#elseif content.type?index_of("video")!=-1>
+                    <a href="${content.url}"  target=_blank>点击查看视频</a>
+                    <#else>
+                    <a href="${content.url}" target=_blank>${content.name}</a>
+                   </#if>
+                </#list>
+                </td>
+                </tr>
+                </#list>
+     </#list>
+                </tbody>
+
+                <tr>
+                   <td colspan="2" style="padding-left: 200px;">
+                   <a href="javascript:history.go(-1)">
+                     <input type="button" id="back" class="btn btn82 btn_kong" value="返回"> 
+                   </a>
+                   </td>
+                 </tr>
+                </table>
+              
+               </div>
+          </div>
+        </div>
+     </div>
+      <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	var project_id=${data.project_id};
+  	function search(){
+        var create_at=document.getElementById("flatpickr-tryme").value;
+        if(create_at==""){
+            alert("请选择监护时间!");
+            return false;
+        }
+		$.ajax({
+	        url:'/supervision/web_load_more_report',
+	        type: 'POST',
+            data: {project_id:project_id,create_at:create_at},
+	        dataType: 'json',//返回数据的类型
+	        success: function (data) {//上传成功
+                $("#loadmore").html("");
+                $.each(data.supervision_list,function(index3,item3){
+                    var load="<tr><td colspan=\"2\"><span style=\"font-size: 16px;font-weight:700;padding-left: 200px;\">监护详情--"+item3.department+"</span></td></tr>" +
+                        " <tr>\n" +
+                        "<td><p style=\"font-size: 14px;font-weight:600;text-align: center;\">名称</p></td>" +
+                        "<td style=\"text-align: left;\"><p style=\"font-size: 14px;font-weight:600\">内容</p></td></tr>" +
+                        "<tr><td class='report-left'><p>"+item3.create_at+"</p></td><td class='report-right'><p>"+item3.department+"</p></td></tr>"
+
+                    $.each(item3.report_data,function(index,item){
+                        load+="<tr><td class='report-left'>"+item.item_name+"</td><td class=report-right>";
+                        $.each(item.content,function(index2,item2){
+                            if(item2.type.indexOf("image")!=-1){
+                                load+="<a href='" + item2.url +"'  target=_blank><img style='width: 70px;height: 70px;' src='"+item2.url+"'/></a>";
+                            }else if(item2.type.indexOf("video")!=-1){
+                                load+="<a href='"+ item2.url +"'  target=_blank>点击查看视频</a>";
+                            }else{
+                                load+=" <a href='"+ item2.url +"'  target=_blank>${item2.name}</a>";
+                            }
+                        });
+                        load+="</td></tr>";
+                    });
+                    $("#loadmore").append(load);
+                });
+            }
+	    });
+  	}
+	</script> 
+  </body>
+</html>

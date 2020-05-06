@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  
+  <!-- 日期选择器 -->
+	
+<script async>
+	function fp_ready(){
+	//Regular flatpickr
+	document.getElementById("flatpickr-tryme").flatpickr();
+	}
+	</script>
+	<script async src="../dist/flatpickr.js" onload="fp_ready()"></script>
+	<script async id="locale_script"></script>
+
+	<link rel="stylesheet" id=cal_style type="text/css" href="../dist/flatpickr.min.css">
+	<!--[if IE]>
+		<script src="http://libs.useso.com/js/html5shiv/3.7/html5shiv.min.js"></script>
+	<![endif]-->
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">新增问题整改通知单</b></div>
+            <div class="box_center">
+              <form action="/supervision/insertSupervision" class="jqtransform" method="post" name="supervisionform" id="supervisionform" enctype="multipart/form-data">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                  <tr>
+                  <td class="td_right">工程名称：</td>
+                   <td><select name="project_id" class="select" id="project" onchange="change_project();"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<#list project as project>
+                  				<option value="${(project.project_id)!'' }">&nbsp;&nbsp;&nbsp;&nbsp;${project.name }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select>
+                  </td>
+                  </tr>
+                  	<tr>
+                  <td class="td_right">工程类型：</td>
+                  <td><input type="text"  id="project_type"  class="input-text lh30" size="40" readonly="true">
+                  <input  type="hidden"  name="create_by"  value="${activeAdmin.id}" class="input-text lh30" size="40">
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">施工单位：</td>
+                  <td class=""> 
+                    <input type="text" id="construction_org" name="construction_organization" class="input-text lh30" size="40" readonly="true">
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">监理单位：</td>
+                  <td class=""> 
+                    <input type="text" id="supervising_org" class="input-text lh30" size="40" readonly="true"> 
+                  </td>
+                </tr>
+               
+               <tr>
+                  <td class="td_right">重要项类型：</td>
+                   <td><select name="type_id" class="select" id="item_type" onchange="change_type();"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<#list type as type>
+                  				<option value="${(type.id)!'' }">&nbsp;&nbsp;&nbsp;&nbsp;${type.name }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select> 
+                  </td>
+                  </tr>
+               
+                <tr>
+                  <td class="td_right">证件类型：</td>
+                   <td><select name="credential_id" class="select" id="credential"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<#list credential as credential>
+                  				<option value="${(credential.id)!'' }">&nbsp;&nbsp;&nbsp;&nbsp;${credential.name }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select> 
+                  </td>
+                  </tr>
+               
+                <tr>
+                  <td class="td_right">证件拍照:</td>
+                  <td>
+                  <span class="photoFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="photoFile"  onchange="addFile(this,'photoFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+               
+                <tr>
+                  <td class="td_right">重要项施工日期：</td>
+                  <td class=""> 
+                    <input input id="flatpickr-tryme" placeholder="重要项施工日期" type='text' class="input-text lh30" name="item_data"  autocomplete="off" />
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">业主及监理签字批准:</td>
+                  <td>
+                  <span class="ossaFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="ossaFile"  onchange="addFile(this,'ossaFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">收费单据:</td>
+                  <td>
+                  <span class="chargeFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="chargeFile"  onchange="addFile(this,'chargeFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                
+                 <tr>
+                  <td class="td_right">申请单:</td>
+                  <td>
+                  <span class="requestFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="requestFile"  onchange="addFile(this,'requestFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                 <tr>
+                  <td class="td_right">当日施工前:</td>
+                  <td>
+                  <span class="construction_beforeFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="construction_beforeFile"  onchange="addFile(this,'construction_beforeFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                 <tr>
+                  <td class="td_right">当日施工后:</td>
+                  <td>
+                  <span class="construction_afterFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="construction_afterFile"  onchange="addFile(this,'construction_afterFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                 <tr>
+                  <td class="td_right">特殊处理证明:</td>
+                  <td>
+                  <span class="special_dealFileSpan">
+                  
+                   </span>
+                   <input type="file"  id="special_dealFile"  onchange="addFile(this,'special_dealFile')"  class="input-text lh30" >
+                  </td>
+                </tr>
+                
+                <tr>
+                <td class="td_right">重要提醒：</td>
+                <td>
+                <textarea rows="3" cols="20" id="remind" style="width: 300px;height: 60px;resize:none;border:none;word-break: break-all;overflow:auto;" readonly></textarea>
+                <br/><span><input type="checkbox" value="male" id="is_read"  />我已阅读</span>
+                </td>
+                </tr>
+                
+                
+                 <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="save" class="btn btn82 btn_save2" value="保存"> 
+                     <input type="button" id="submit" class="btn btn82 btn_save2" value="提交"> 
+                   </td>
+                 </tr>
+               </table>
+               </form>
+            </div>
+          </div>
+        </div>
+     </div>
+      <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	
+	var projectList=[];
+	<#list project as project>
+	var p={};
+	p.type_name="${project.type_name}";
+	p.project_id="${project.project_id}";
+	p.supervising_org="${project.supervising_org}";
+	p.construction_org="${project.construction_org}";
+	projectList.push(p);
+	</#list>
+	
+	
+	var typeList=[];
+	<#list type as type>
+	var t={};
+	t.id="${type.id}";
+	t.remind="${type.remind}";
+	typeList.push(t);
+	</#list>
+	
+	function change_project(){
+		var sel = document.getElementById("project");
+		var selected_val = sel.options[sel.selectedIndex].value;
+		
+		if(selected_val!=""){
+			for(i=0;i<projectList.length;i++){
+				if(projectList[i].project_id==selected_val){
+					$("#project_type").val(projectList[i].type_name);
+					$("#construction_org").val(projectList[i].construction_org);
+					$("#supervising_org").val(projectList[i].supervising_org);
+				}
+				}
+		}else{
+			$("#project_type").val("");
+			$("#construction_org").val("");
+			$("#supervising_org").val("");
+		}
+	}
+	
+	
+	function change_type(){
+		var sel = document.getElementById("item_type");
+		var selected_val = sel.options[sel.selectedIndex].value;
+		
+		if(selected_val!=""){
+			for(i=0;i<typeList.length;i++){
+				if(typeList[i].id==selected_val){
+					$("#remind").val(typeList[i].remind);
+				}
+				}
+		}else{
+			$("#remind").val(" ");
+		}
+	}
+	
+	$(function(){      
+		 //文件删除按钮
+        $(document).on('click','.remove-file-btn',function () {
+        	if(confirm("确认删除么？")){
+        		$(this).closest('.fileDiv').remove();
+        	}
+        });
+		$("input").focus(function(){
+			  $("input").css("background-color","");
+			  $(this).css("background-color","#FFFFCC");
+			});
+		
+		 //保存按钮
+        $(document).on('click','#save',function () {
+            submitForm(1);
+        })
+        //提交按钮
+        $(document).on('click','#submit',function () {
+            submitForm(2);
+        })
+		
+	}); 
+		function submitForm(state){
+            var data = {};
+            
+            if($("#is_read").prop("checked"))//选中时，为真
+   		    {
+            	 data.is_read=1;
+   		     }else{
+   		    	 if(state==2){
+   		    		 alert("请勾选“我已阅读”后再次提交");
+   		    		 return; 
+   		    	 }
+   		    	data.is_read=0;
+   		     }
+            
+            data["project_id"]=$('#project option:selected').val();
+            data["construction_organization"]=$("input[name='construction_organization']").val();
+            data["type_id"]=$('#item_type option:selected').val();
+            data["credential_id"]=$('#credential option:selected').val();
+            data["item_data"]=$("input[name='item_data']").val();
+            data["create_by"]=${activeAdmin.id};
+            data["state"]=state;
+            
+            
+            data.photo=fileToList('photoFileSpan');
+            data.ossa=fileToList('ossaFileSpan');
+            data.charge=fileToList('chargeFileSpan');
+            data.request=fileToList('requestFileSpan');
+            data.construction_before=fileToList('construction_beforeFileSpan');
+            data.special_deal=fileToList('special_dealFileSpan');
+            data.construction_after=fileToList('construction_afterFileSpan');
+            
+            
+            
+            //提交数据
+            $.ajax({
+		        url:'/supervision/web_add_item',
+		        secureuri:false,
+		        traditional:true,
+		        contentType:"application/json",
+		        type: 'POST',
+	            data: JSON.stringify(data),
+		        dataType: 'json',//返回数据的类型
+		        success: function (data) {//添加成功
+		            if(data>0){
+		            	alert("添加成功");
+		            	window.location.href="/supervision/web_item_list?pageindex=1";
+		            }
+		        }
+		    });
+        }
+    	
+    	
+    	function fileToList(Cname){   //遍历div  把file改为list
+    		var list=[];
+    		var order = 1;
+    		$('.'+Cname+" .fileDiv").each(function (i,item) {
+                var fileObj={};
+                fileObj.name= $(item).data('name');
+                fileObj.url = $(item).find('a').attr('href');
+                fileObj.type = $(item).find('a').attr('type');
+                fileObj.order = order++;
+                list.push(fileObj);
+            })
+            return list;
+    	}
+    	
+    	
+    	function addFile(obj,Cname){  //上传文件到七牛  
+    			var timestamp = (new Date()).getTime(); //时间戳
+    			var formData = new FormData();
+    	        var file_obj = obj.files[0];
+    	        if(file_obj==null){  //没有选择文件 跳出方法
+    	        	return false
+    	        }
+    	        var fileName=file_obj.name;
+    	        
+    	        var strtype = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();//（把路径中的所有字母全部转换为小写）
+    	        strtype=fileType(strtype);
+                if(strtype==null||strtype==""){
+                alert("不支持的文件类型!请重新选择!");
+                return false;
+                  }
+    	        
+    	        formData.append("token","${token}");  //token
+    	        formData.append("key","${prefix}"+timestamp+fileName);  //name
+    	        formData.append('file',file_obj);   //文件
+    		    $.ajax({
+    		        url:'http://up-z1.qiniu.com/',
+    		        secureuri:false,
+    		        type: 'POST',
+    	            data: formData,
+    		        dataType: 'json',//返回数据的类型
+    		        processData:false,  //
+                    contentType: false, 
+    		        success: function (data) {//上传成功
+    		        	$('#'+Cname).val('');
+    		        	var url="${QiniuUrl}"+data.key;
+    		        	var str ='';
+    		        	if(strtype.indexOf("image")!=-1){ //包含 是图片
+    		        		   str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+    		        		   '<a href="'+url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+url+'" /></a>'+
+    		        		   '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+    		        	}else{
+    		        		str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+    		        		'<a href="'+url+'" type="'+strtype+'" target=_blank>'+file_obj.name+'</a>'+
+    		        		'<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+    		        		
+    		        	}
+    		        	$('.'+Cname+"Span").append(str);
+    		        }
+    		    });
+    	}
+    	
+    	function fileType(type){
+    		var typeList=[
+    			{suffix:".png,.jpg,.gif,.bmp,.jpeg",type:"image"},
+    			{suffix:".doc,.docx,.word,.dotx,.dotm,.docm",type:"word"},
+    			{suffix:".pdf",type:"pdf"},
+    			{suffix:".ppt,.pptx,.ppsx,.pptm,.ppsx,.potx",type:"ppt"},
+    			{suffix:".txt",type:"txt"},
+    			{suffix:".cad",type:"cad"},
+    			{suffix:".xlsx,.xls,.xlsm,.xlsb,.xlsm,.xlam",type:"excel"}
+    			];
+            var result_type=null;
+            for(var i=0;i<typeList.length;i++){
+                if(typeList[i].suffix.indexOf(type)!=-1){
+                    result_type=typeList[i].type;
+                }
+            }
+            return result_type;
+    	}
+        
+  	
+	</script> 
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<meta http-equiv="Content-Type" content="multipart/form-data; charset=utf-8" />
+<body>
+
+<h2>Spring Boot多文件上传示例(使用AJAX)</h2>
+
+<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+    <input type="text" name="extraField"/><br/><br/>
+    <input type="file" name="files"/><br/><br/>
+    <input type="file" name="files"/><br/><br/>
+    <input type="submit" value="提交" id="btnSubmit"/>
+</form>
+
+<h1>Ajax提交结果：</h1>
+<pre>
+    <span id="result"></span>
+</pre>
+
+<script src="statics/libs/jquery-1.10.2.min.js"></script>
+<script>
+$(document).ready(function () {
+    $("#btnSubmit").click(function (event) {
+        event.preventDefault();
+        fire_ajax_submit();
+    });
+});
+
+function fire_ajax_submit() {
+
+    // Get form
+    var form = $('#fileUploadForm')[0];
+    var data = new FormData(form);
+
+    data.append("CustomField", "This is some extra data, testing");
+    $("#btnSubmit").prop("disabled", true);
+
+    $.ajax({ 
+        type: 'POST',
+        enctype: 'multipart/form-data',
+        url: 'http://192.168.229.131:8080/api/file/upload',
+        data: data,
+        processData: false,
+        contentType: false,
+        success: function (data) {
+        	alert(22);
+            $("#result").text(data);
+            console.log("SUCCESS : ", data);
+            $("#btnSubmit").prop("disabled", false);
+        },
+        error: function (e) {
+        	alert(11);
+            $("#result").text(e.responseText);
+            console.log("ERROR : ", e);
+            $("#btnSubmit").prop("disabled", false);
+        }
+    });
+}
+</script>
+
+</body>
+</html>

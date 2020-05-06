@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	$(function(){
+		$("input").focus(function(){
+			  $("input").css("background-color","");
+			  $(this).css("background-color","#FFFFCC");
+			});
+		
+		 
+		$("#save").click(function(){
+        	if(qrcodeform.url.value==''){
+        		alert("请填写二维码地址");
+        		return;
+        	}
+        	
+        	$("#qrcodeform").ajaxSubmit({
+    			url:"/gtgx/insertQrCode",
+    			type:"post",
+    			dataType:"text",
+    			success:function(e){
+    			if(e=="1"){
+    				alert("二维码更新成功");
+    				window.location.href="/gtgx/getActiveQrCode";
+    			}else{
+    				alert("二维码更新失败");
+    			}
+    			}
+    	});
+		
+	});
+	});
+	
+	
+	</script>
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">当前二维码地址</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" width="960px;" border="0" cellpadding="0" cellspacing="0">
+                    <tr>
+                  <td class="td_right">当前下载地址：</td>
+                  <td>
+                  ${(crcode.url)!'' }
+                  </td>
+                    </tr>
+                    <tr>
+                  <td class="td_right">当前二维码：</td>
+                   <td>
+				  <img alt="${crcode.img_url}" src="${(crcode.img_url)!'' }" style="width: 200px;height: 200px;" >
+				  </td>
+				  </tr>
+                    <tr>
+                  <td class="td_right">更新时间：</td>
+                  <td>
+                  ${(crcode.create_at)!'' }
+                  </td>
+                    </tr>
+               </table>
+            </div>
+            <div class="box_top"><b class="pl15">更新二维码下载地址</b></div>
+            <div>
+             <form action="" id="qrcodeform" name="qrcodeform" class="jqtransform" method="post"> 
+            <table class="form_table pt15 pb15" width="960px;" border="0" cellpadding="0" cellspacing="0">
+                  <tr>
+                  <td class="td_right">新下载地址：</td>
+                  <td class=""> 
+                    <input type="text" name="url" class="input-text lh30" size="40">
+                  </td>
+                  </tr>
+                  <tr>
+                  <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" class="btn btn82 btn_save2" id="save" value="确定"> 
+                   </td>
+                 </tr>
+            </table>
+            </form>
+            
+            
+            </div>
+          </div>
+        </div>
+     </div>
+  </body>
+</html>

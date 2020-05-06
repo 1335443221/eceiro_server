@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.UserDao">
+
+	
+<!-- resultMap映射 -->
+	<resultMap type="UserInfo" id="UserResult">
+		<!-- 主键 -->
+		<id property="id" column="id"/>
+		<!-- 一般属性 -->
+		<result property="job_number" column="job_number"/>
+		<result property="login_name" column="login_name"/>
+		<result property="user_name" column="user_name"/>
+		<result property="email" column="email"/>
+		<result property="phone" column="phone"/>
+		<result property="cellphone" column="cellphone"/>
+		<result property="password" column="password"/>
+		<result property="portrait" column="portrait"/>
+		<result property="create_at" column="create_at"/>
+		<result property="update_at" column="update_at"/>
+		<result property="allow_login" column="allow_login"/>
+		<result property="is_delete" column="is_delete"/>
+		<result property="rong_token" column="rong_token"/>
+		
+		
+		<!-- 关联信息 -->
+		<association property="roleInfo" javaType="RoleInfo">
+			<id property="id" column="rid"/>
+		<!--一般属性 -->
+			<result property="name" column="rname"/>
+			<result property="remark" column="rremark"/>
+		</association>
+		
+		<association property="group" javaType="Group">
+			<id property="id" column="gid"/>
+		<!--一般属性 -->
+			<result property="name" column="gname"/>
+			<result property="remark" column="gremark"/>
+		</association>
+		
+		<association property="organization" javaType="Organization">
+			<id property="id" column="oid"/>
+		<!--一般属性 -->
+			<result property="name" column="oname"/>
+			<result property="number" column="onumber"/>
+			<result property="oclass" column="ooclass"/>
+			<result property="father_id" column="ofather_id"/>
+			<result property="remark" column="oremark"/>
+		</association>
+	
+</resultMap>
+
+	<!-- u.user_name,u.email,u.phone,u.cellphone,g.name gname,r.name rname,o.name oname -->
+	<!-- 个人信息 -->
+	<select id="getUserinfoById"  parameterType="Integer" resultType="java.util.Map">
+		SELECT u.*,r.id role_id,r.name rname,r.is_notice_auth,g.id gid,g.name gname,c.cname,d.dname FROM `user` u
+		left JOIN user_role_relation ur ON  u.id=ur.user_id left JOIN role r ON ur.role_id=r.id
+		left JOIN `company` c ON u.company_id=c.id
+		left JOIN `department` d ON u.department_id=d.id 
+		left JOIN `group` g ON u.group_id=g.id
+		WHERE u.id =#{id}
+	</select> 
+	
+	
+	<!-- 登陆验证 -->
+	<select id="checkUser" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT u.*,r.id rid,r.name rname,r.remark rremark,g.id gid,g.name gname FROM `user` u
+		LEFT JOIN user_role_relation ur ON  u.id=ur.user_id LEFT JOIN role r ON ur.role_id=r.id
+		LEFT JOIN `group` g ON u.group_id=g.id
+		where u.is_delete=2 and u.allow_login=1 and u.login_name =#{login_name} and u.password=#{password}
+	</select>
+	
+	
+	
+		<!-- app登陆验证 -->
+	<select id="checkAppLogin" parameterType="java.util.Map" resultType="java.util.Map">
+	    SELECT u.*,ur.role_id,r.name role_name,u.group_id,g.name group_name FROM `user` u
+		LEFT JOIN user_role_relation ur ON  u.id=ur.user_id LEFT JOIN role r ON ur.role_id=r.id
+		LEFT JOIN `group` g ON u.group_id=g.id
+		WHERE u.is_delete=2 and u.cellphone =#{account} and u.password=#{password}
+	</select>
+	
+	
+	
+	<!-- 分页查询 -->
+	<select id="findPage" parameterType="com.timber.eceiro.common.utils.PageUtil" resultType="java.util.Map">
+		SELECT u.*,r.id rid,r.name rname,g.id gid,g.name gname,c.cname,d.dname FROM `user` u
+		left JOIN user_role_relation ur ON  u.id=ur.user_id INNER JOIN role r ON ur.role_id=r.id
+		left JOIN `company` c ON u.company_id=c.id
+		left JOIN `department` d ON u.department_id=d.id 
+		left JOIN `group` g ON u.group_id=g.id
+		where u.is_delete=2
+		AND u.login_name !='test' 
+		AND u.login_name !='user'
+		AND u.login_name !='developer'
+		
+		<if test="params.option=='login_name' and params.key != null and params.key !=''">
+			and u.login_name like CONCAT('%',#{params.key},'%')   
+		</if>
+		<if test="params.option=='user_name' and params.key != null and params.key !=''">
+			and u.user_name like CONCAT('%',#{params.key},'%')   
+		</if>
+		<if test="params.company_id != null and params.company_id !=''">
+			and u.company_id = #{params.company_id} 
+		</if>
+		<if test="params.department_id != null and params.department_id !=''">
+			and u.department_id = #{params.department_id} 
+		</if>
+		group by u.id desc
+	</select>
+	
+	<!-- 全部用户 -->
+	<select id="getAllUser" parameterType="java.util.Map" resultMap="UserResult">
+		SELECT * from `user` u  where u.is_delete=2
+		<if test="department_id != null and department_id !=''">
+			and u.department_id = #{department_id} 
+		</if>
+	</select>
+	
+	
+	<select id="checkJob_number" parameterType="String" resultMap="UserResult">
+		SELECT * from `user` where  job_number= #{sta} and is_delete=2
+	</select>
+	
+	<select id="checkLogin_name" parameterType="String" resultMap="UserResult">
+		SELECT * from `user` where  login_name= #{sta} and is_delete=2
+	</select>
+	
+	<select id="checkCellphone" parameterType="java.util.HashMap" resultMap="UserResult">
+		SELECT * from `user` where  cellphone= #{addcellphone} and is_delete=2
+		<if test="id != null and id !=''">
+			and id != #{id}  
+		</if>
+	</select>
+	
+	<select id="checkDelete" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT u.* FROM `user` u  
+		INNER JOIN `user_role_relation` ur ON u.id=ur.user_id
+		INNER JOIN role r ON r.id =ur.role_id  
+		where u.is_delete=2 
+		<if test="company_id != null and company_id !=''">
+			and company_id = #{company_id}  
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and department_id = #{department_id}  
+		</if>
+		<if test="group_id != null and group_id !=''">
+			and group_id = #{group_id}  
+		</if>
+		<if test="role_id != null and role_id !=''">
+			and r.id = #{role_id}  
+		</if>
+	</select>
+
+	
+	
+	
+	<select id="getMaxIdUser" resultMap="UserResult">
+	SELECT * FROM `user` where `user`.is_delete=2 and id=(SELECT MAX(id) FROM `user` )
+	</select>
+	
+	
+	<select id="getSupportList" parameterType="java.util.List" resultMap="UserResult">
+	select * from `user` where id in
+	<foreach collection="list" item="list" index="index" open="(" close=")" separator=",">
+	  #{list}
+	</foreach>  
+	</select> 
+	
+	
+	
+	
+	
+	
+	<update id="updateUserinfo" parameterType="java.util.Map">
+	update `user`
+		<set>
+			<if test="job_number != null">job_number=#{job_number, jdbcType=VARCHAR},</if>
+			<if test="login_name != null">login_name=#{login_name, jdbcType=VARCHAR},</if>
+			<if test="user_name != null">user_name=#{user_name, jdbcType=VARCHAR},</if>
+			<if test="email != null">email=#{email, jdbcType=VARCHAR},</if>
+			<if test="phone != null">phone=#{phone, jdbcType=VARCHAR},</if>
+			<if test="cellphone != null">cellphone=#{cellphone, jdbcType=VARCHAR},</if>
+			<if test="password != null">password=#{password, jdbcType=VARCHAR},</if>
+			portrait=#{portrait},
+			update_at=SYSDATE(),
+			<if test="allow_login != null">allow_login=#{allow_login, jdbcType=INTEGER},</if>
+			<if test="is_delete != null">is_delete=#{is_delete, jdbcType=INTEGER},</if>
+			<if test="company_id != null">company_id=#{company_id, jdbcType=INTEGER},</if>
+			department_id=#{department_id},
+			group_id=#{group_id},
+			<if test="rong_token != null">rong_token=#{rong_token, jdbcType=VARCHAR},</if>
+			<if test="rong_user_id != null">rong_user_id=#{rong_user_id, jdbcType=VARCHAR}</if>
+
+		</set>
+		where id=#{user_id}
+	</update>
+	
+		<insert id="insertUser" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="user_id">
+		insert into `user`
+		(job_number,login_name,user_name,email,phone,cellphone,password,portrait,create_at,update_at,allow_login,is_delete,company_id,department_id,group_id,rong_token,rong_user_id)
+		values
+		(	#{job_number},
+			#{login_name},
+			#{user_name},
+			#{email},
+			#{phone},
+			#{cellphone},
+			#{password},
+			#{portrait},
+			SYSDATE(),
+			#{update_at},
+			#{allow_login},
+			#{is_delete},
+			#{company_id},
+			#{department_id},
+			#{group_id},
+			#{rong_token},
+			#{rong_user_id}
+		)
+	</insert>
+	
+	
+	
+	<update id="deleteUserById" parameterType="Integer">
+	update `user` set is_delete=1  where id=#{id}
+	</update>
+	
+	
+	
+	<select id="getQiNiuBucket" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from qiniu_bucket 
+	</select>
+
+	<select id="getSession" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from `gtgx_sesssion`
+	where  gtgx_session =#{gtgx_session}
+	limit 1
+	</select>
+
+
+	<insert id="insertSession" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="id">
+		insert into `gtgx_sesssion`
+		(gtgx_session,gtgx_value,create_at)
+		values
+		(	#{gtgx_session},
+			#{gtgx_value},
+			SYSDATE()
+		)
+	</insert>
+
+
+	<select id="getAllRongUser" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * from `user` u  where u.is_delete=2
+		<if test="company_id != null and company_id !=''">
+			and u.company_id = #{company_id}
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and u.department_id = #{department_id}
+		</if>
+		<if test="group_id != null and group_id !=''">
+			and u.group_id = #{group_id}
+		</if>
+		<if test="user_id != null and user_id !=''">
+			and u.id = #{user_id}
+		</if>
+	</select>
+
+
+
+</mapper>

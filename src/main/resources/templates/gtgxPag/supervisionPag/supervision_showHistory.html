@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>施工监护历史</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>                 
+<script type="text/javascript" src="../js/classes.js"></script>
+
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/supervision/web_supervision_history?pageindex=1" method="post">
+		<span class="span_common">工程名称：</span>
+    <input type="text" name="name" value="${(page.params.name)!''}" class="input-text lh30" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="span_common">工程类型：</span>
+     <select name="type_id" class="select"> 
+    							<option value=''>全部</option>
+                  				<#list page.params.type_data as type_data>
+                  				<option value="${(type_data.id)!'' }"  <#if type_data.id == page.params.type_id> selected="selected"</#if> >${type_data.name }</option>
+                  				</#list>
+     </select>&nbsp;&nbsp;&nbsp;&nbsp;
+   
+施工单位：
+    <input type="text" name="construction_org" value="${(page.params.construction_org)!''}" class="input-text lh30" size="20">&nbsp;&nbsp;&nbsp;&nbsp;
+  	 	
+  <input type="submit" name="button"
+		class="submit_common" value="查询">
+		</form></div>
+
+  <a href="#"><input type="input" name="button" disabled="true"
+		class="btn btn82" style="background: white;cursor:default;width: 1px"></a>
+  
+   <table  border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;font-size: 4px;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">工程名称</th>
+				<th align="center" class="tableHeader">工程类型</th>
+				<th align="center" class="tableHeader">施工位置</th>
+				<th align="center" class="tableHeader">施工单位</th>
+				<th align="center" class="tableHeader">监理单位</th>
+				<th align="center" class="tableHeader">监理时间要求</th>
+				<th align="center" class="tableHeader">启动日期</th>
+				<th align="center" class="tableHeader">已监护天数</th>
+				<th align="center" class="tableHeader">监护部门</th>
+				<th align="center" class="tableHeader">操作</th>
+			</tr>
+			<#list page.data as List>
+			
+			<tr>
+			<td>${List.project_name }</td>
+			<td>${List.type_name}</td>
+			<td>${List.location}</td>
+			<td>${List.construction_org }</td>
+			<td>${List.supervising_org}</td>
+			
+			<td>
+			<#if List.time_type=='1'>
+			每班${List.time_count}次
+			<#else>
+			每${List.time_count}小时
+			</#if>
+			</td>
+			
+			<td>${List.begin_time}</td>
+			<td>${List.days}</td>
+			<td>${List.model_name}</td>
+			<td>
+
+				<button class="button_common"><a href="/supervision/web_report_data_ById?supervision_id=${List.id }"><span class="button_span_common">查看</span></a></button>&nbsp;
+				<#if activeAdmin.rid=='3'||activeAdmin.rid=='4'>
+					<#if activeAdmin.department_id==List.department_id>
+				<button class="button_common"><a href="/supervision/goSupplementReport?supervision_id=${List.id }"><span class="button_span_common">补录</span></a></button>&nbsp;
+					<#else>
+						<button class="button_common" style="background-color: buttonface;" disabled="true"><span class="button_span_common">补录</span></button>&nbsp;
+					</#if>
+				<#else>
+				<button class="button_common" style="background-color: buttonface;" disabled="true"><span class="button_span_common">补录</span></button>&nbsp;
+			</#if>
+			</td>
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/supervision/web_supervision_history?pageindex=1&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&construction_org=${(page.params.construction_org)!''}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/supervision/web_supervision_history?pageindex=${(page.params.lastpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&construction_org=${(page.params.construction_org)!''}">[上一页]</a></li>&nbsp;
+			
+			<li><a href="/supervision/web_supervision_history?pageindex=${(page.params.nextpage)!''}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&construction_org=${(page.params.construction_org)!''}">[下一页]</a></li>&nbsp;
+
+			<li><a href="/supervision/web_supervision_history?pageindex=${page.totalPagecount}&name=${(page.params.name)!''}&type_id=${(page.params.type_id)!''}&construction_org=${(page.params.construction_org)!''}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+  </body>
+</html>

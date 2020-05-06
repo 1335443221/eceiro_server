@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>showFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+   <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	
+	</script> 
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">问题整改详情</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+               <tr>
+                  <td class="td_right">工程名称：</td>
+                   <td><p>${data.name}</p></td>
+                  <td class="td_right">施工位置：</td>
+                  <td><p>${data.location}</p></td>
+                  </tr>
+                 <tr>
+                 <td class="td_right">监理单位：</td>
+                  <td><p>${data.supervising_org}</p></td>
+                   <td class="td_right">施工单位：</td>
+                  <td><p>${data.construction_org}</p></td>
+                  </tr>
+                   <tr>
+                 <td class="td_right">监理负责人：</td>
+                  <td><p>${data.supervisor}</p></td>
+                   <td class="td_right">监理联系方式：</td>
+                  <td><p>${data.supervisor_phone}</p></td>
+                  </tr>
+                   <tr>
+                 <td class="td_right">安全员/施工员：</td>
+                  <td colspan="3"><p>${data.constructor}</p></td>
+                  </tr>
+                   <tr>
+                  <td class="td_right">项目经理：</td>
+                  <td><p>${data.PM}</p></td>
+                   <td class="td_right">项目经理联系方式：</td>
+                  <td><p>${data.PM_phone}</p></td>
+                  </tr>
+                  
+                  <tr><td colspan="4"><p style="font-size: 16px;font-weight:700;padding-left: 200px;">整改报告详情</p></td></tr>
+                  <tr>
+                  <td class="td_right">整改描述：</td>
+                  <td colspan="3"><p>${data.report_data.description}</p></td>
+                  </tr>
+                  
+                  <tr>
+                  <td class="td_right">现场照片：</td>
+                  <td colspan="3">
+                  <#list data.report_data.site_photo as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                  </tr>
+                  
+                  <tr>
+                  <td class="td_right">报告：</td>
+                  <td colspan="3">
+                  <#list data.report_data.report as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                  </tr>
+                  <tr>
+                 <td class="td_right">上报人：</td>
+                 <td colspan="3"><p>${data.report_data.user_name}</p></td>
+                  </tr>
+                  <tr>
+                 <td class="td_right">上报时间：</td>
+                 <td colspan="3"><p>${data.report_data.create_at}</p></td>
+                  </tr>
+                 
+                 
+                 <tr><td colspan="4"><p style="font-size: 16px;font-weight:700;padding-left: 200px;">整改通知单详情</p></td></tr>
+                  <tr>
+                 <td class="td_right">时间：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.time}</p></td>
+                  </tr>
+                  
+                   <tr>
+                 <td class="td_right">地点：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.location}</p></td>
+                  </tr>
+                  
+                   <tr>
+                 <td class="td_right">问题描述：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.description}</p></td>
+                  </tr>
+                  
+                  <tr>
+                  <td class="td_right">现场拍照：</td>
+                  <td colspan="3">
+                  <#list data.abarbeitung_data.site_photo as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                  </tr>
+                  
+                  
+                   <tr>
+                 <td class="td_right">危害：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.harm}</p></td>
+                  </tr>
+                  
+                   <tr>
+                 <td class="td_right">惩治措施：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.punishment}</p></td>
+                  </tr>
+                  
+                  <tr>
+                  <td class="td_right">签字附件：</td>
+                  <td colspan="3">
+                  <#list data.abarbeitung_data.sign as fileList>
+                 
+                  <#if fileList.type =='image'||fileList.type =='image'>
+				  
+		    	 <div class="fileDiv">
+		    	 <a href="${fileList.url}" target=_blank>
+		        <img style="width: 70px;height: 70px;" src="${fileList.url}" />
+		        </a>
+		  		  </div>
+				  <#else>
+				   <div class="fileDiv">
+		        <a href="${fileList.url}" target=_blank>${fileList.name}</a>
+		  		  </div>
+                  </#if>
+                  </#list>
+                  </td>
+                  </tr>
+                  
+                  
+                  
+                   <tr>
+                 <td class="td_right">创建人：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.create_at}</p></td>
+                  </tr>
+                  
+                   <tr>
+                 <td class="td_right">创建时间：</td>
+                 <td colspan="3"><p>${data.abarbeitung_data.create_by}</p></td>
+                  </tr>
+                  
+                  <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                   <a href="javascript:history.go(-1)">
+                     <input type="button" id="back" class="btn btn82 btn_kong" value="返回"> 
+                   </a>
+                   </td>
+                 </tr>
+                
+                
+               </table>
+            </div>
+          </div>
+          
+        </div>
+     </div>
+  </body>
+</html>

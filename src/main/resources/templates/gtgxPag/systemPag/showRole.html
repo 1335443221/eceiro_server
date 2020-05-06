@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>角色管理</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+<script type="text/javascript">
+   $(function(){
+		$(".shanchu").click(function(){
+			var id = $(this).attr('id');
+			if(confirm("确认删除么？")){
+				$.ajax({
+					url:"/gtgx/checkDelete",
+					type:"post",
+					data:{role_id:id},
+					dataType:"text",
+					success:function(e){
+					if(e>0){
+						alert("此角色下有关联信息,无法删除");
+					}else{
+						$.ajax({
+							url:"/gtgx/deleteRoleById",
+							data: {id:id},
+							type:"post",
+							dataType:"json",
+							success:function(data){
+								if (data>0){
+									alert("删除成功");
+									location="/gtgx/getAllRole?pageindex=1";
+								}
+							}
+						});
+					}
+					}
+				});
+		};
+	});
+	});
+	
+</script>
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/gtgx/getAllRole?pageindex=1" method="post">
+  <span class="span_common">角色姓名：</span>
+    <input type="text" name="key" value="${(page.params.key)!""}" class="input-text lh30" size="20">
+  <input type="submit" name="button"
+		class="submit_common" value="搜索">
+		</form></div>
+		
+		<a href="#"><input type="input" name="button" disabled="true"
+		class="btn btn82" style="background: white;cursor:default;width: 1px"></a>
+		
+		<!--  
+  <a href="/gtgx/goAddRole"><input type="button" name="button"
+		class="btn btn82 btn_9" value="新增"></a>
+  -->
+   <table border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">角色名称</th>
+				<th align="center" class="tableHeader">备注</th>
+			<!--  	<th align="center" class="tableHeader">操作</th> -->
+			</tr>
+			<#list page.data as roleList>
+			<tr>
+			<td>${roleList.name}</td>
+			<td>${roleList.remark }</td>
+			
+			<!--  
+			<td>
+			<a href="/gtgx/getRoleById?id=${roleList.id }">
+			<img alt="" src="../images/gtgx/update.png">
+			</a>
+			<img style="padding-left: 15px;" class="shanchu" id="${roleList.id }" alt="" src="../images/gtgx/delete.png">
+			 </td>
+			 -->
+			</tr>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/gtgx/getAllRole?pageindex=1&key=${(page.params.key)!""}">[首页]</a></li>&nbsp;
+			
+			<li><a href="/gtgx/getAllRole?pageindex=${(page.params.lastpage)!''}&key=${(page.params.key)!""}">[上一页]</a></li>&nbsp;
+			                                             
+			<li><a href="/gtgx/getAllRole?pageindex=${(page.params.nextpage)!''}&key=${(page.params.key)!""}">[下一页]</a></li>&nbsp;
+                                                         
+			<li><a href="/gtgx/getAllRole?pageindex=${page.totalPagecount}&key=${(page.params.key)!""}">[末页]</a></li>&nbsp;
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+</div>
+</div> 
+		
+		
+  </body>
+</html>

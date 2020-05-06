@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    <title>用户管理</title>
+    
+<link rel="stylesheet" href="../css/common.css">
+<link rel="stylesheet" href="../css/main.css">
+<link rel="stylesheet" type="../text/css"
+	href="../easyui/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css" href="../easyui/themes/icon.css">
+<link rel="stylesheet" type="text/css" href="../easyui/demo.css">
+<script type="text/javascript" src="../js/jquery.min.js"></script>
+<script type="text/javascript" src="../easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+<script type="text/javascript" src="../js/common.js"></script>
+<script type="text/javascript" src="../js/classes.js"></script>
+<script type="text/javascript">
+function change_company(){
+	$("#department").html("<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;全部&nbsp;&nbsp;&nbsp;&nbsp;</option>");
+	var sel = document.getElementById("company");
+	var selected_val = sel.options[sel.selectedIndex].value;
+	if(selected_val!=""){
+		$.ajax({
+			url:"/gtgx/departmentByCompany",
+			data: {company_id:selected_val},
+			type:"post",
+			dataType:"json",
+			success:function(data){
+				var departmentList='';
+				for(i=0;i<data.length;i++){
+					departmentList+="<option value='"+data[i].id+"' >&nbsp;&nbsp;&nbsp;&nbsp;"+data[i].dname+"&nbsp;&nbsp;&nbsp;&nbsp;</option>"
+					}
+				$("#department").append(departmentList);
+			}
+	});
+	}
+}
+
+$(function(){
+	$(".shanchu").click(function(){
+		var id = $(this).attr('id');
+		if(confirm("确认删除么？")){
+			$.ajax({
+				url:"/gtgx/deleteUser",
+				data: {id:id},
+				type:"post",
+				dataType:"json",
+				success:function(data){
+					if (data>0){
+						alert("删除成功");
+						location="/gtgx/getAllUser?pageindex=1";
+					}
+				}
+			});
+		}
+	});
+});
+
+</script>
+</head>
+  <body>
+    <div style="float:left;height: 36px">
+    <form action="/gtgx/getAllUser?pageindex=1" method="post">
+   <select name="option"  class="select">
+   	<option value="login_name" <#if 'login_name' == page.params.option> selected="selected"</#if> >登录名</option>
+   	<option value="user_name" <#if 'user_name' == page.params.option> selected="selected"</#if> >姓名</option>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+    <input type="text" name="key" value="${(page.params.key)!''}" class="input-text lh30" size="20">
+    <span class="span_common">公司：</span>
+     <select name="company_id" class="select" id="company" onchange="change_company();"> 
+    							<option value="">全部</option>
+                  				<#list page.params.companyList as companyList>
+                  				<option value="${(companyList.id)!"" }"  <#if companyList.id == page.params.company_id> selected="selected"</#if> >${companyList.cname }</option>
+                  				</#list>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+   
+<span class="span_common">部门：</span>
+     <select name="department_id" class="select" id="department" > 
+    							<option value="">全部</option>
+                  				<#list page.params.departmentList as departmentList>
+                  				<option value="${(departmentList.id)!"" }"  <#if departmentList.id == page.params.department_id> selected="selected"</#if> >${departmentList.dname }</option>
+                  				</#list>
+   </select>&nbsp;&nbsp;&nbsp;&nbsp;
+    
+   
+    
+  <input type="submit" name="button"
+		class="submit_common" value="搜索">&nbsp;&nbsp;&nbsp;&nbsp;
+		</form></div>
+  <a href="/gtgx/goAddUser"><input type="button" name="button"
+		class="add_button" value="新增"></a>
+  
+   <table  border="0" cellpadding="0" cellspacing="0" class="list_table" style="text-align: center;">
+		<thead>
+			<tr>
+				<th align="center" class="tableHeader">工号</th>
+				<th align="center" class="tableHeader">登录名</th>
+				<th align="center" class="tableHeader">姓名</th>
+				<th align="center" class="tableHeader">公司</th>
+				<th align="center" class="tableHeader">部门</th>
+				<th align="center" class="tableHeader">角色</th>
+				<th align="center" class="tableHeader">所属工作组</th>
+				<th align="center" class="tableHeader">手机</th>
+				<th align="center" class="tableHeader">是否允许登录(web后台)</th>
+				<th align="center" class="tableHeader">创建日期</th>
+				<th align="center" class="tableHeader">操作</th>
+			</tr>
+			<#list page.data as userList>
+			
+			<#if userList.login_name=="test" || userList.login_name=="developer" || userList.login_name=="user">
+			<#else>
+			<tr>
+			<td>${userList.job_number}</td>
+			<td>${userList.login_name }</td>
+			<td>${userList.user_name }</td>
+			<td>${userList.cname}</td>
+			<td>${userList.dname}</td>
+			<td>${userList.rname }</td>
+			<td>${userList.gname }</td>
+			<td>${userList.cellphone }</td>
+			<td>
+			<#if userList.allow_login=="1">
+			允许登录
+			<#else>
+			不允许登录
+			</#if>
+			</td>
+			
+			<td>${userList.create_at }</td>
+			<td>
+				<button class="button_common">
+					<a href="/gtgx/goUpdateUser?id=${userList.id }">
+						<span class="button_span_common">编辑</span>
+					</a>
+				</button>&nbsp;
+				<button class="button_common">
+					<a href="javascript:void(0)">
+						<span class="button_span_common shanchu" id="${userList.id }">删除</span>
+					</a>
+				</button>&nbsp;
+			 </td>
+			</tr>
+			</#if>
+			</#list>
+		</thead>
+	</table>
+	
+		<div style="margin-top:5px;margin-left:5px" class="pagination">
+	<ul>
+		<span class="noprint" style="padding:5px;">
+		
+			<li><a href="/gtgx/getAllUser?pageindex=1&key=${(page.params.key)!''}&option=${(page.params.option)!''}&company_id=${page.params.company_id}&department_id=${page.params.department_id}">[首页]</a></li>&nbsp;
+			<li><a href="/gtgx/getAllUser?pageindex=${(page.params.lastpage)!''}&key=${(page.params.key)!''}&option=${(page.params.option)!''}&company_id=${page.params.company_id}&department_id=${page.params.department_id}">[上一页]</a></li>&nbsp;
+			<li><a href="/gtgx/getAllUser?pageindex=${(page.params.nextpage)!''}&key=${(page.params.key)!''}&option=${(page.params.option)!''}&company_id=${page.params.company_id}&department_id=${page.params.department_id}">[下一页]</a></li>&nbsp;
+			<li><a href="/gtgx/getAllUser?pageindex=${page.totalPagecount}&key=${(page.params.key)!''}&option=${(page.params.option)!''}&company_id=${page.params.company_id}&department_id=${page.params.department_id}">[末页]</a></li>&nbsp;
+			
+				
+				<li style="height:0px;border:0px;background-color:#fff"></li>
+				<li><a style="color:red">第${page.pageindex}页，共${page.totalPagecount}页</a></li>
+				<li><a style="color:#0072E3">共${page.recordCount}条</a></li>
+		</span>
+	</ul>
+	
+</div>
+  </body>
+</html>

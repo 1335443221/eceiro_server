@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">施工监护信息</b></div>
+            <div class="box_center">
+               <table class="form_table pt15 pb15" width="500px;" >
+                  <tr>
+                  <td class="td_right">工程名称：</td>
+                   <td><p>${data.supervision.project_name}</p>
+                  </td>
+                  </tr>
+                  	<tr>
+                  <td class="td_right">工程类型：</td>
+                  <td><p>${data.supervision.type_name}</p></td>
+                </tr>
+                
+                 <tr>
+                  <td class="td_right">施工位置：</td>
+                  <td><p>${data.supervision.location}</p></td>
+                </tr>
+                <tr>
+                  <td class="td_right">施工单位：</td>
+                  <td><p>${data.supervision.construction_org}</p></td>
+                </tr>
+                <tr>
+                  <td class="td_right">监理单位：</td>
+                  <td><p>${data.supervision.supervising_org}</p></td>
+                </tr>
+                <tr>
+                  <td class="td_right">监理时间要求：</td>
+                  <td class=""> 
+                  				<#if data.supervision.type='1'>
+                  				<p>每班${data.supervision.count }次</p>
+                  				<#else>
+                  				<p>每${data.supervision.count }小时</p>
+                  				</#if>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="td_right">启动日期：</td>
+                  <td><p>${data.supervision.begin_time}</p></td>
+                </tr>
+                <tr style="border: 1px;">
+                  <td class="td_right" >监护内容：</td>
+                  <td> 
+                  <#list data.model as model>
+                  <hr style="width: 250px;">
+                  <p>${model.item_name}</p><br>
+                  </#list>
+                  </td>
+                </tr>
+				                
+                 <tr><td></td>
+                 <td id="model_tr"></td>
+                 </tr>
+                
+                
+                
+                 <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                    <a href="javascript:history.go(-1)">
+                     <input type="button" id="back" class="btn btn82 btn_kong" value="返回"> 
+                   </a>
+                   </td>
+                 </tr>
+               </table>
+            </div>
+          </div>
+        </div>
+     </div>
+      <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	
+  	
+	</script> 
+  </body>
+</html>

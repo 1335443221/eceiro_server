@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"></meta>
+    
+    <title>addFactory</title>
+    
+	<link rel="stylesheet" href="../css/common.css">
+   <link rel="stylesheet" href="../css/main.css">
+  </head>
+  <body>
+    <div id="forms" class="mt10">
+        <div class="box">
+          <div class="box_border">
+            <div class="box_top"><b class="pl15">新增故障上报</b></div>
+            <div class="box_center">
+              <form  class="jqtransform" method="post" name="reportform" id="reportform" enctype="multipart/form-data">
+               <table class="form_table pt15 pb15" style="width:100%" border="1" cellspacing="0" bordercolor="#F8F2F3">
+                  
+                  <tr>
+                  <td class="td_right">部门:</td>
+                  <td><select name="department_id" class="select" id="type"> 
+                  				<#list data.departmentList as list>
+                  				<option value="${(list.id)!'' }" <#if list.id==activeAdmin.department_id>selected="selected"</#if>>&nbsp;&nbsp;&nbsp;&nbsp;${list.dname }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select>
+                  </td>
+                  </tr>
+                
+                <tr>
+                  <td class="td_right">地点:</td>
+                  <td><input type="text" name="location"  class="input-text lh30" size="40">
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td class="td_right">问题:</td>
+                  <td><input type="text" name="question"  class="input-text lh30" size="40">
+                  </td>
+                </tr>
+                
+                  <tr>
+                  <td class="td_right">类别：</td>
+                  <td><select name="type" class="select" id="type"> 
+                  				<option value=''>&nbsp;&nbsp;&nbsp;&nbsp;请选择&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				<#list data.type_list as type_list>
+                  				<option value="${(type_list.id)!'' }">&nbsp;&nbsp;&nbsp;&nbsp;${type_list.type_name }&nbsp;&nbsp;&nbsp;&nbsp;</option> 
+                  				</#list>
+                        		</select>
+                        		</td>
+                 </tr>
+                  	
+                
+                  	<tr>
+                  <td class="td_right">文字描述:</td>
+                  <td><textarea rows="3" cols="20" name="text_desc" style="width: 300px;height: 80px;"></textarea>
+                  </td>
+                   </tr>
+                
+                <tr>
+                  <td class="td_right">现场拍照:</td>
+                  <td>
+                  <span class="imageFileSpan">
+                  
+                   </span>
+                   <input type="file" id="imageFile" onchange="addFile(this,'imageFile')"  class="input-text lh30" >
+                   <input  type="hidden"  name="image_desc" id="image_desc" value="" class="input-text lh30" size="40">
+                  </td>
+                </tr>
+              
+                 <tr>
+                   <td class="td_right">&nbsp;</td>
+                   <td class="">
+                     <input type="button" id="save" class="btn btn82 btn_save2" value="提交">
+                   </td>
+                 </tr>
+               </table>
+               </form>
+               
+               <form  class="jqtransform" method="post" name="imageform" id="imageform" enctype="multipart/form-data">
+              
+               </form>
+            </div>
+          </div>
+        </div>
+     </div>
+     
+     <script type="text/javascript" src="../js/jquery.min.js"></script>
+   <script type="text/javascript" src="../js/colResizable-1.3.min.js"></script>
+   <script type="text/javascript" src="../js/common.js"></script>
+   <script type="text/javascript" src="../js/jquery.form.js"></script> 
+	<script type="text/javascript">  
+	$(document).ready(function () {
+	        //文件删除按钮
+	        $(document).on('click','.remove-file-btn',function () {
+	        	if(confirm("确认删除么？")){
+	        		$(this).closest('.fileDiv').remove();
+	        	}
+	        })
+	        //保存按钮
+	        $(document).on('click','.btn_save2',function () {
+	        	var image=fileToString('imageFileSpan');
+	        	$("#image_desc").val(image);
+	            submitForm();
+	        })
+	    })
+    	
+    	
+    	function submitForm(){
+            
+            $("#reportform").ajaxSubmit({
+    			url:"/gtgx/insertMalfunctionReport",
+    			type:"post",
+    			dataType:"text",
+    			success:function(e){
+    				alert("增加成功");
+    				window.location.href="/gtgx/getAllMalfunctionReport?pageindex=1";
+    			}
+    	});
+            
+	}
+    	function fileToString(Cname){   //遍历div  把file改为String
+			var image="";
+			var len = $('.'+Cname+" .fileDiv").length;
+    		$('.'+Cname+" .fileDiv").each(function (i,item) {
+    			if (i == len - 1)
+                {
+    				image+=$(item).find('a').attr('href');
+                }else{
+                	image+=$(item).find('a').attr('href')+",";
+                }
+    			
+            })
+            image+="";
+            return image;
+    	}
+
+
+
+    function addFile(obj,Cname){  //上传文件到七牛
+        var timestamp = (new Date()).getTime(); //时间戳
+        var formData = new FormData();
+        var file_obj = obj.files[0];
+        if(file_obj==null){  //没有选择文件 跳出方法
+            return false
+        }
+        var fileName=file_obj.name;
+
+        var strtype = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();//（把路径中的所有字母全部转换为小写）
+        strtype=fileType(strtype);
+        if(strtype==null||strtype==""){
+            alert("不支持的文件类型!请重新选择!");
+            return false;
+        }
+
+        formData.append("token","${token}");  //token
+        formData.append("key","${prefix}"+timestamp+fileName);  //name
+        formData.append('file',file_obj);   //文件
+        $.ajax({
+            url:'http://up-z1.qiniu.com/',
+            secureuri:false,
+            type: 'POST',
+            data: formData,
+            dataType: 'json',//返回数据的类型
+            processData:false,  //
+            contentType: false,
+            success: function (data) {//上传成功
+                $('#'+Cname).val('');
+                var url="${QiniuUrl}"+data.key;
+                var str ='';
+                if(strtype.indexOf("image")!=-1){ //包含 是图片
+                    str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+                        '<a href="'+url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+url+'" /></a>'+
+                        '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+                }else{
+                    str +='<div class="fileDiv" data-name="'+file_obj.name+'">'+
+                        '<a href="'+url+'" type="'+strtype+'" target=_blank>'+file_obj.name+'</a>'+
+                        '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+
+                }
+                $('.'+Cname+"Span").append(str);
+            }
+        });
+    }
+
+    function fileType(type){
+        var typeList=[
+            {suffix:".png,.jpg,.gif,.bmp,.jpeg",type:"image"},
+            {suffix:".doc,.docx,.word,.dotx,.dotm,.docm",type:"word"},
+            {suffix:".pdf",type:"pdf"},
+            {suffix:".ppt,.pptx,.ppsx,.pptm,.ppsx,.potx",type:"ppt"},
+            {suffix:".txt",type:"txt"},
+            {suffix:".cad",type:"cad"},
+            {suffix:".xlsx,.xls,.xlsm,.xlsb,.xlsm,.xlam",type:"excel"}
+        ];
+        var result_type=null;
+        for(var i=0;i<typeList.length;i++){
+            if(typeList[i].suffix.indexOf(type)!=-1){
+                result_type=typeList[i].type;
+            }
+        }
+        return result_type;
+    }
+
+
+    	/*function addFile(obj,Cname){  //上传文件
+    	        var file_obj = obj.files[0];
+    	        if(file_obj==null){  //没有选择文件 跳出方法
+    	        	return false
+    	        }
+    	        var formData = new FormData();
+    	        formData.append("type","image");  //name
+    	        formData.append('file',file_obj);   //文件
+    	        
+    	        $.ajax({
+    		        url:'/gtgx/addFile',
+    		        secureuri:false,
+    		        type: 'POST',
+    	            data: formData,
+    		        dataType: 'json',//返回数据的类型
+    		        processData:false,  //
+                    contentType: false, 
+    		        success: function (data) {//上传成功
+    		        	if(data.code==1000){
+    		        		$('#'+Cname).val('');
+    		        		var str="";
+    		        		str +='<div class="fileDiv" data-name="'+data.id+'">'+
+ 		        		   '<a href="'+data.url+'" type="image" target=_blank><img style="width: 70px;height: 70px;" src="'+data.url+'" /></a>'+
+ 		        		   '<a href="javascript:;" class="remove-file-btn"><img src="/images/gtgx/deleteFile.png" class="deleteFile"/></a></div>'
+ 		        		   $('.'+Cname+"Span").append(str);
+    		        	}else{
+    		        		alert(data.msg);
+    		        	}
+    		        	}
+    		    });
+    	}*/
+    	
+	</script> 
+  </body>
+</html>

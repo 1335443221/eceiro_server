@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.timber.eceiro.manager.dao.SupervisionDao">
+
+<!--施工监护列表 -->	
+    <select id="supervision_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id supervision_id,s.project_id,p.name project_name,p.location,t.count,t.type,s.state supervision_state,s.day_count,s.begin_time FROM `supervision` s
+	INNER JOIN project p
+	ON s.project_id=p.id
+	INNER JOIN `supervision_time_type` t
+	ON s.supervision_time_id=t.id
+	WHERE p.state BETWEEN 4 AND 6
+	<if test="name != null and name !=''">
+		and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="supervision_model_id != null and supervision_model_id !=''">
+			and s.supervision_model_id =#{supervision_model_id}
+	</if>
+	<if test="supervision_id != null and supervision_id !=''">
+		and s.id =#{supervision_id}
+	</if>
+	order by s.id desc
+	</select>
+
+    <select id="getReportTimeBySupervision" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT si.create_at FROM `supervision_item_relation` si
+	where 1=1
+	<if test="supervision_id != null and supervision_id !=''">
+		and si.supervision_id =#{supervision_id}
+	</if>
+	<if test="startTime != null and startTime !=''">
+		and si.create_at BETWEEN #{startTime} AND #{endTime}
+	</if>
+	group by si.create_at
+	</select>
+
+	<select id="supervision_listByParams" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT s.*,md.department_id,d.dname FROM `supervision` s
+		LEFT JOIN `supervision_model` m on s.supervision_model_id=m.id
+		LEFT JOIN `supervision_model_department` md on m.id=md.model_id
+		LEFT JOIN `department` d on md.department_id=d.id
+		WHERE 1=1
+		<if test="project_id != null and project_id !=''">
+			and s.project_id =#{project_id}
+		</if>
+
+		<if test="department_id != null and department_id !=''">
+			and md.department_id =#{department_id}
+		</if>
+		ORDER BY s.id DESC
+	</select>
+
+	<select id="supervision_count" parameterType="java.util.Map" resultType="Integer">
+	SELECT count(*) FROM `supervision` s 
+	INNER JOIN project p
+	ON s.project_id=p.id
+	INNER JOIN `supervision_time_type` t
+	ON s.supervision_time_id=t.id
+	WHERE p.state BETWEEN 4 AND 6
+	<if test="name != null and name !=''">
+		and p.name like CONCAT('%',#{name},'%')
+	</if>
+	order by s.id desc
+	</select>
+<!--施工监护信息 -->	
+    <select id="supervision_data" parameterType="java.util.Map" resultType="java.util.Map">
+	select s.*,d.dname from `supervision` s
+	left join `supervision_model_department` smd on s.supervision_model_id=smd.model_id
+	left join `department` d on smd.department_id=d.id
+	where s.id=#{supervision_id}
+	</select>	
+<!--施工监护时间类型列表 -->	
+    <select id="supervision_time_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select * from `supervision_time_type`
+	</select>
+<!--施工监护上报模板列表 -->	
+    <select id="supervision_model_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select m.*,d.id department_id,d.dname department_name from `supervision_model` m
+	left join `supervision_model_department` md on m.id=md.model_id
+	left join `department` d on md.department_id=d.id
+	</select>
+<!--施工监护上报模板内容列表-->	
+    <select id="supervision_model_item_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id item_id,s.item_name,s.is_fill,s.is_display FROM `supervision_model_item` s
+	left join `supervision_model_department` d on s.model_id=d.model_id
+	WHERE 1=1
+		<if test="supervision_model_id != null and supervision_model_id !=''">
+			and s.model_id =#{supervision_model_id}
+		</if>
+		<if test="department_id != null and department_id !=''">
+			and d.department_id =#{department_id}
+		</if>
+	</select>
+    <select id="getDepartmentById" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * FROM `department` d
+	WHERE 1=1
+		<if test="department_id != null and department_id !=''">
+			and d.id =#{department_id}
+		</if>
+	</select>
+<!--施工监护上报最新时间-->
+	<select id="supervision_report_last_time" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id,s.project_id,s.supervision_id,s.item_id,s.content,s.create_at,u.user_name create_by,d.dname FROM `supervision_item_relation` s
+	LEFT JOIN `user` u ON s.create_by=u.id
+	LEFT JOIN `department` d ON u.department_id=d.id 
+	WHERE 1=1
+	<if test="supervision_id != null and supervision_id !=''">
+			and s.supervision_id=#{supervision_id}
+	</if>
+	<if test="project_id != null and project_id !=''">
+			and s.project_id=#{project_id}
+	</if>
+	<if test="department_id != null and department_id !=''">
+			and d.id=#{department_id}
+	</if>
+	<if test="create_at != null and create_at !=''">
+			and s.create_at &lt; #{create_at}
+	</if>
+	<if test="beginTime != null and beginTime !=''and endTime !=''and endTime !=''">
+			and s.create_at BETWEEN #{beginTime} AND #{endTime}
+	</if>
+	ORDER BY s.create_at DESC
+	LIMIT 1
+	</select>
+	<!--检查是否上报了三次-->
+	<select id="web_check_report" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT * FROM `supervision_item_relation` s
+		where 1=1
+	  <if test="supervision_id != null and supervision_id !=''">
+			and s.supervision_id=#{supervision_id}
+	  </if>
+	  and s.create_at BETWEEN #{beginTime} AND #{endTime}
+	  group by s.create_at
+	</select>
+
+	<select id="supervision_report_time" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT s.item_id,i.item_name,i.is_fill,i.is_display,s.content,s.create_at FROM `supervision_item_relation` s
+		INNER JOIN `supervision_model_item` i ON s.item_id=i.id
+		WHERE 1=1
+		<if test="supervision_id != null and supervision_id !=''">
+			and supervision_id=#{supervision_id}
+		</if>
+		<if test="project_id != null and project_id !=''">
+			and project_id=#{project_id}
+		</if>
+		<if test="item_id != null and item_id !=''">
+			and i.id=#{item_id}
+		</if>
+		<if test="beginTime != null and beginTime !=''">
+			and s.create_at BETWEEN #{beginTime} AND #{endTime}
+		</if>
+		ORDER BY s.item_id
+	</select>
+<!--施工监护上报最新记录-->
+	<select id="supervision_report_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.item_id,i.item_name,i.is_fill,i.is_display,s.content FROM `supervision_item_relation` s
+	INNER JOIN `supervision_model_item` i ON s.item_id=i.id
+	WHERE 1=1 
+	<if test="supervision_id != null and supervision_id !=''">
+			and s.supervision_id=#{supervision_id}
+	</if>
+	<if test="project_id != null and project_id !=''">
+			and s.project_id=#{project_id}
+	</if>
+	<if test="item_id != null and item_id !=''">
+			and i.id=#{item_id}
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and s.create_by=#{create_by}
+	</if>
+	<if test="create_at != null and create_at !=''">
+			and s.create_at=#{create_at}
+	</if>
+	<if test="is_irregular != null">
+		and s.is_irregular=#{is_irregular}
+	</if>
+	<if test="beginTime != null and beginTime !=''and endTime != null and endTime !=''">
+			and s.create_at between #{beginTime} and #{endTime}
+	</if>
+	</select>
+
+<!-- 问题整改列表 -->
+<select id="abarbeitung_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT a.project_id,a.id abarbeitung_id,p.name project_name,a.location,a.create_at,a.state abarbeitung_state FROM `abarbeitung` a 
+	INNER JOIN `project` p ON a.project_id=p.id
+	where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and a.state &lt; 3
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and a.state=3 and a.create_by=#{create_by}
+	</if>
+	order by a.create_at desc
+	</select>	
+
+<select id="abarbeitung_list_count" parameterType="java.util.Map" resultType="Integer">
+	select count(*)  FROM `abarbeitung` a 
+	INNER JOIN `project` p ON a.project_id=p.id
+	where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and a.state &lt; 3
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and a.state=3 and a.create_by=#{create_by}
+	</if>
+	order by a.create_at desc
+	</select>	
+
+<!-- 问题整改信息 -->
+<select id="abarbeitung_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT a.project_id,p.name project_name,a.id abarbeitung_id,a.construction_organization,a.location,a.time,a.state abarbeitung_state,a.description,a.site_photo,a.harm,a.punishment,a.sign,a.else,u.user_name create_by,a.create_at FROM `abarbeitung` a 
+	LEFT JOIN `user` u ON a.create_by=u.id
+	INNER JOIN `project` p ON a.project_id=p.id
+	where a.id=#{abarbeitung_id}
+	</select>	
+	
+<!-- 问题整改报告信息 -->
+<select id="abarbeitung_report_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT a.id,a.abarbeitung_id,a.description,a.site_photo,a.report,a.state,a.else,a.create_at,a.create_by,u.user_name FROM `abarbeitung_report` a
+	inner join `user` u on a.create_by=u.id
+	where 1=1
+	<if test="submit != null and create_by !=''">
+			and a.state=2
+	</if>
+	<if test="save != null and save !=''">
+			and a.state=1
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and a.state=1 and a.create_by=#{create_by}
+	</if>
+	<if test="abarbeitung_id != null and abarbeitung_id !=''">
+			and abarbeitung_id=#{abarbeitung_id}
+	</if>
+	</select>	
+
+<!-- 有人提交时删除 别的保存的整改报告 -->
+<delete id="delete_save_abarbeitung_report" parameterType="java.util.Map">
+	delete from `abarbeitung_report` 
+	where state=1 and abarbeitung_id=#{abarbeitung_id}
+	</delete>
+
+
+
+<!-- 重要施工项类型列表 -->
+<select id="item_type_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * FROM `construction_item_type`
+	</select>
+<!-- 重要施工项证书列表 -->
+<select id="item_credential_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT * FROM `construction_item_credential`
+	</select>
+<!-- 重要施工项列表 -->
+<select id="construction_item_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT c.id item_id,c.project_id,p.name project_name,t.name type_name,c.item_data,c.state item_state FROM
+    (SELECT * FROM `construction_item` ORDER BY id DESC ) c
+	LEFT JOIN `project` p ON c.project_id=p.id
+	LEFT JOIN `construction_item_type` t ON c.type_id=t.id
+	WHERE 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and c.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and c.state=1 and c.create_by=#{create_by}
+	</if>
+	GROUP BY p.id
+	order by c.create_at desc 
+	</select>	
+<!-- 重要施工项信息 -->
+<select id="construction_item_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT c.id,c.project_id,c.type_id,c.credential_id,t.remind,t.name type_name,cc.name credential_name,c.item_data,c.photo,c.ossa,c.charge,c.request,
+	c.construction_before,c.special_deal,c.construction_after,c.else,u.user_name create_by,c.create_at FROM `construction_item` c 
+	INNER JOIN `construction_item_type` t ON c.type_id=t.id
+	INNER JOIN `construction_item_credential` cc ON c.credential_id=cc.id
+	INNER JOIN `user` u ON c.create_by=u.id
+	where c.id=#{item_id}
+	</select>	
+
+<!-- 加载重要施工项信息 -->
+<select id="load_construction_item_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT c.id,c.project_id,p.name project_name,c.construction_organization,c.type_id,t.name type_name,t.remind,c.is_read,c.credential_id,cc.name credential_name,c.item_data,c.photo,c.ossa,c.charge,c.request,
+	c.construction_before,c.special_deal,c.construction_after,c.else,u.user_name create_by,c.create_at,c.is_read FROM `construction_item` c 
+	INNER JOIN `project` p ON c.project_id=p.id
+	INNER JOIN `construction_item_type` t ON c.type_id=t.id
+	INNER JOIN `construction_item_credential` cc ON c.credential_id=cc.id
+	INNER JOIN `user` u ON c.create_by=u.id
+	where c.id=#{item_id}
+	</select>	
+<select id="construction_item_lastId" parameterType="java.util.Map" resultType="Integer">
+	select IFNULL(MAX(c.id),0) as id from construction_item c 
+	where c.project_id=#{project_id}
+	and c.id &lt; #{item_id}
+	order by c.id  limit 1
+	</select>	
+	
+<!-- 重要施工项列表总数 -->
+<select id="construction_item_count" parameterType="java.util.Map" resultType="Integer">
+	select count(*)  FROM `construction_item` c
+	INNER JOIN `project` p ON c.project_id=p.id
+	INNER JOIN `construction_item_type` t ON c.type_id=t.id
+	where 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and c.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and c.state=1 and c.create_by=#{create_by}
+	</if>
+	order by c.create_at desc
+	</select>		
+	
+	
+<!-- 工程进度列表 -->
+<select id="schedule_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT p.id project_id,s.id schedule_id,p.name project_name,'计划进度' AS type_name,s.state schedule_state   FROM 
+	(SELECT * FROM `project_schedule` ORDER BY id DESC ) s
+	LEFT JOIN `project` p ON s.project_id=p.id
+	WHERE 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and s.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and s.state=1 and s.create_by=#{create_by}
+	</if>
+	GROUP BY p.id
+	order by s.create_at desc 
+	</select>	
+<!-- 工程进度总数 -->
+<select id="schedule_count" parameterType="java.util.Map" resultType="Integer">
+	SELECT COUNT(*) FROM (SELECT p.id project_id,s.id schedule_id,p.name project_name,'计划进度' AS type_name,s.state schedule_state   FROM `project_schedule` s
+	INNER JOIN `project` p ON s.project_id=p.id
+	WHERE 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and s.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and s.state=1 and s.create_by=#{create_by}
+	</if>
+		GROUP BY p.id) sp
+	</select>		
+<!-- 工程进度最新进度 -->
+<select id="schedule_newData" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id schedule_id,s.meeting_data,s.meeting_summary,s.site_photo,s.schedule,s.else,s.create_at,u.user_name create_by FROM `project_schedule` s
+	LEFT JOIN `user` u ON s.create_by=u.id
+	WHERE s.state=2
+	and s.project_id=#{project_id}
+	order by s.create_at desc limit 1
+	</select>
+<!-- 工程进度id -->
+<select id="schedule_lastId" parameterType="java.util.Map" resultType="Integer">
+	SELECT s.id FROM `project_schedule` s
+	where s.state=2 
+	and s.project_id=#{project_id}
+	order by s.create_at limit 1
+	</select>				
+<!-- 工程进度加载 -->
+<select id="load_schedule" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id schedule_id,s.project_id,p.name project_name,s.construction_organization,s.supervising_organization,s.meeting_data,s.meeting_summary,s.site_photo,s.schedule,s.else,s.create_at,s.create_by FROM `project_schedule` s
+	INNER JOIN project p ON s.project_id=p.id 
+	WHERE s.id=#{schedule_id}
+	</select>
+	
+<!-- 工程进度信息 -->
+<select id="schedule_data" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id schedule_id,s.project_id,p.name project_name,s.construction_organization,s.supervising_organization,s.meeting_data,s.meeting_summary,s.site_photo,s.schedule,s.else,s.create_at,u.user_name create_by FROM `project_schedule` s
+	INNER JOIN project p ON s.project_id=p.id 
+	inner join `user` u on s.create_by=u.id
+	WHERE s.id=#{schedule_id}
+	</select>	
+		
+<!-- 工程进度上一个信息 -->
+<select id="loadmore_schedule" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id schedule_id,s.meeting_data,s.meeting_summary,s.site_photo,s.schedule,s.else,s.create_at,s.create_by FROM `project_schedule` s
+	WHERE s.state=2
+	and s.project_id=#{project_id}
+	<if test="schedule_id != null and schedule_id !=''">
+			and s.id &lt; #{schedule_id}
+	</if>
+	order by s.create_at desc limit 1
+	</select>	
+	
+		
+	<!-- 新增施工监护 -->
+	<insert id="add_supervision" parameterType="java.util.Map">
+		insert into `supervision`
+		(project_id,supervision_time_id,begin_time,supervision_model_id,create_at,create_by,day_count)
+		values
+		(	#{project_id},
+		 	#{supervision_time_id},
+			#{begin_time},
+			#{supervision_model_id},
+			SYSDATE(),
+			#{create_by},
+			#{day_count}
+		)
+	</insert>
+	
+	<!-- 新增施工监护上报 -->
+	<insert id="add_supervision_report" parameterType="java.util.Map">
+		insert into `supervision_item_relation`
+		(project_id,supervision_id,item_id,content,create_at,create_by,is_supplement,is_irregular,supplement_at)
+		values
+		(	#{project_id},
+		 	#{supervision_id},
+			#{item_id},
+			#{content},
+			#{cteate_at},
+			#{create_by},
+		<choose>
+			<when test="is_supplement != null and is_supplement != ''">#{is_supplement},</when>
+			<otherwise>0,</otherwise>
+		</choose>
+		<choose>
+			<when test="is_irregular != null and is_irregular != ''">#{is_irregular},</when>
+			<otherwise>0,</otherwise>
+		</choose>
+			#{supplement_at}
+		)
+	</insert>
+	
+	<!-- 新增问题整改 -->
+	<insert id="add_abarbeitung" parameterType="java.util.Map">
+		insert into `abarbeitung`
+		(project_id,construction_organization,location,time,description,site_photo,harm,punishment,sign,`else`,state,create_at,create_by)
+		values
+		(	#{project_id},
+		 	#{construction_organization},
+			#{location},
+			#{time},
+			#{description},
+			#{site_photo},
+			#{harm},
+			#{punishment},
+			#{sign},
+			#{else},
+			#{state},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert>
+	
+	<!-- 新增问题整改报告 -->
+	<insert id="add_abarbeitung_report" parameterType="java.util.Map">
+		insert into `abarbeitung_report`
+		(abarbeitung_id,description,site_photo,report,`else`,state,create_at,create_by)
+		values
+		(	#{abarbeitung_id},
+		 	#{description},
+			#{site_photo},
+			#{report},
+			#{else},
+			#{state},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert>
+	
+	<!-- 新增重要施工项 -->
+	<insert id="add_construction_item" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="item_id">
+		insert into `construction_item`
+		(project_id,construction_organization,type_id,credential_id,photo,item_data,ossa,charge,request,construction_before,special_deal,construction_after,is_read,`else`,state,create_at,create_by)
+		values
+		(	#{project_id},
+		 	#{construction_organization},
+			#{type_id},
+			#{credential_id},
+			#{photo},
+			#{item_data},
+			#{ossa},
+			#{charge},
+			#{request},
+			#{construction_before},
+			#{special_deal},
+			#{construction_after},
+			#{is_read},
+			#{else},
+			#{state},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert>   
+	
+	
+	<!-- 工程进度新增 -->
+	<insert id="add_schedule" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="item_id">
+		insert into `project_schedule`
+		(project_id,construction_organization,supervising_organization,meeting_data,meeting_summary,site_photo,schedule,`else`,state,create_at,create_by)
+		values
+		(	#{project_id},
+		 	#{construction_organization},
+			#{supervising_organization},
+			#{meeting_data},
+			#{meeting_summary},
+			#{site_photo},
+			#{schedule},
+			#{else},
+			#{state},
+			SYSDATE(),
+			#{create_by}
+		)
+	</insert> 
+	
+	
+	  
+	
+	<!-- 定时施工监护 当日次数清零 -->
+	<update id="reset_supervision_day_count" parameterType="java.util.Map" >
+	UPDATE `supervision` SET day_count=0,state=0
+	</update>
+
+
+	<!-- 更新监护状态 -->
+	<update id="update_supervision_state" parameterType="java.util.Map" >
+	UPDATE `supervision` SET state=1 where id=#{supervision_id}
+	</update>
+
+	<!-- 施工监护 完成次数加1 -->
+	<update id="update_supervision_day_count" parameterType="Integer" >
+	UPDATE `supervision` SET day_count=day_count+1,total_count=total_count+1 where id=#{supervision_id}
+	</update>
+	
+	
+	
+	
+	
+	<!-- 修改问题整改信息 -->
+	<update id="update_abarbeitung" parameterType="java.util.Map" >
+	update abarbeitung
+		<set>
+			<if test="project_id != null">project_id=#{project_id},</if>
+			<if test="construction_organization != null">construction_organization=#{construction_organization},</if>
+			<if test="location != null">location=#{location},</if>
+			<if test="time != null">time=#{time},</if>
+			<if test="description != null">description=#{description},</if>
+			<if test="site_photo != null">site_photo=#{site_photo},</if>
+			<if test="harm != null">harm=#{harm},</if>
+			<if test="punishment != null">punishment=#{punishment},</if>
+			<if test="sign != null">sign=#{sign},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			create_at=SYSDATE(),
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{abarbeitung_id}
+	</update>
+	
+	
+	<!-- 修改问题整改报告信息 -->
+	<update id="update_abarbeitung_report" parameterType="java.util.Map" >
+	update abarbeitung_report
+		<set>
+			<if test="description != null">description=#{description},</if>
+			<if test="site_photo != null">site_photo=#{site_photo},</if>
+			<if test="report != null">report=#{report},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			create_at=SYSDATE(),
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{report_id}
+	</update>
+	
+	<!-- 修改重要施工项 -->
+	<update id="update_construction_item" parameterType="java.util.Map" >
+	update construction_item
+		<set>
+			<if test="project_id != null">project_id=#{project_id},</if>
+			<if test="construction_organization != null">construction_organization=#{construction_organization},</if>
+			<if test="type_id != null">type_id=#{type_id},</if>
+			<if test="credential_id != null">credential_id=#{credential_id},</if>
+			<if test="photo != null">photo=#{photo},</if>
+			<if test="item_data != null">item_data=#{item_data},</if>
+			<if test="ossa != null">ossa=#{ossa},</if>
+			<if test="charge != null">charge=#{charge},</if>
+			<if test="request != null">request=#{request},</if>
+			<if test="construction_before != null">construction_before=#{construction_before},</if>
+			<if test="special_deal != null">special_deal=#{special_deal},</if>
+			<if test="construction_after != null">construction_after=#{construction_after},</if>
+			<if test="is_read != null">is_read=#{is_read},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			create_at=SYSDATE(),
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{item_id}
+	</update>
+	
+	<!-- 修改工程进度 -->
+	<update id="update_schedule" parameterType="java.util.Map" >
+	update `project_schedule`
+		<set>
+			<if test="project_id != null">project_id=#{project_id},</if>
+			<if test="construction_organization != null">construction_organization=#{construction_organization},</if>
+			<if test="supervising_organization != null">supervising_organization=#{supervising_organization},</if>
+			<if test="meeting_data != null">meeting_data=#{meeting_data},</if>
+			<if test="meeting_summary != null">meeting_summary=#{meeting_summary},</if>
+			<if test="site_photo != null">site_photo=#{site_photo},</if>
+			<if test="schedule != null">schedule=#{schedule},</if>
+			<if test="else != null">`else`=#{else},</if>
+			<if test="state != null">state=#{state},</if>
+			create_at=SYSDATE(),
+			<if test="create_by != null">create_by=#{create_by}</if>
+		</set>
+		where id=#{schedule_id}
+	</update>
+	
+	<!-- ===============================================web端============================================ -->
+	
+	<select id="web_supervision_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT s.id,p.name,t.name type_name,p.location,p.construction_org,p.supervising_org,st.count time_count,st.type time_type,s.begin_time,u.user_name create_by,s.create_at FROM `supervision` s 
+	INNER JOIN project p ON s.project_id=p.id
+	INNER JOIN `project_type` t ON p.project_type=t.id
+	left join `user` u on s.create_by=u.id
+	inner join `supervision_time_type` st on s.supervision_time_id=st.id
+	where p.state BETWEEN 4 AND 6
+	<if test="name != null and name !=''">
+		and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+		and t.id =#{type_id}
+	</if>
+        <if test="supervision_id != null and supervision_id !=''">
+            and s.id =#{supervision_id}
+        </if>
+	<if test="construction_org != null and construction_org !=''">
+		and p.construction_org like CONCAT('%',#{construction_org},'%')
+	</if>
+	order by s.create_at desc
+	</select>
+	
+	
+	<select id="supervision_project_list" parameterType="java.util.Map" resultType="java.util.Map">
+	select  p.id project_id,p.name `name`,location,construction_org,supervising_org,PM,p.state project_state,s.state_name,t.id type_id,t.name type_name  from project p
+    inner join project_state s on p.state=s.state_id
+    inner join project_type t on p.project_type=t.id
+	where 1=1 
+	<if test="list_type == '1'.toString()">
+		and p.state BETWEEN 4 AND 6
+	</if>
+	<if test="list_type =='2'.toString()">
+		and p.state BETWEEN 3 AND 6
+	</if>
+	order by p.create_at desc
+	</select>
+	
+	
+	<select id="web_supervision_data_ById" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT  s.id supervision_id,s.begin_time,s.project_id,s.supervision_model_id,p.name project_name,t.name type_name,p.location,p.construction_org,p.supervising_org,st.type,st.count,m.model_name,md.department_id,d.dname FROM `supervision` s
+		LEFT JOIN `supervision_time_type` st ON s.supervision_time_id=st.id
+		LEFT JOIN `project` p ON s.project_id=p.id
+		LEFT JOIN project_type t ON p.project_type=t.id
+		LEFT JOIN `supervision_model` m ON s.supervision_model_id=m.id
+		LEFT JOIN `supervision_model_department` md on s.supervision_model_id=md.model_id
+		LEFT JOIN `department` d on md.department_id=d.id
+		where 1=1
+	<if test="supervision_id != null and supervision_id !=''">
+		and s.id =#{supervision_id}
+	</if>
+	</select>
+	
+	
+	<!-- 监护历史 -->
+	<select id="web_supervision_history" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT s.id,p.name project_name,t.name type_name,p.location,p.construction_org,p.supervising_org,st.count time_count,st.type time_type,s.begin_time,s.total_count,m.model_name,smd.department_id FROM `supervision` s
+		INNER JOIN `supervision_model` m ON s.supervision_model_id=m.id
+		INNER JOIN project p ON s.project_id=p.id
+		INNER JOIN `project_type` t ON p.project_type=t.id
+		INNER JOIN `supervision_time_type` st ON s.supervision_time_id=st.id
+		INNER JOIN `supervision_model_department` smd ON m.id=smd.model_id
+		where p.state BETWEEN 4 AND 6
+	<if test="name != null and name !=''">
+		and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+		and t.id =#{type_id}
+	</if>
+	<if test="construction_org != null and construction_org !=''">
+		and p.construction_org like CONCAT('%',#{construction_org},'%')
+	</if>
+	order by s.create_at desc
+	</select>
+	
+	
+	
+	<select id="web_abarbeitung_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT a.id,p.name,t.name type_name,p.id project_id,p.construction_org,p.supervising_org,a.location,a.description,a.state,u.user_name create_by,a.create_at 
+	FROM `abarbeitung` a 
+	INNER JOIN project p ON a.project_id=p.id
+	INNER JOIN `project_type` t ON p.project_type=t.id
+	INNER JOIN `user` u ON a.create_by=u.id
+	WHERE p.state BETWEEN 3 AND 6
+	<if test="type_id != null and type_id !=''">
+		and t.id =#{type_id}
+	</if>
+	<if test="name != null and name !=''">
+		and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="construction_org != null and construction_org !=''">
+		and p.construction_org like CONCAT('%',#{construction_org},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and a.state!=3
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and a.state=3 and a.create_by=#{create_by}
+	</if>
+	order by a.create_at desc
+	</select>
+	
+	
+	
+	<select id="web_item_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT p.name project_name,pt.name type_name,p.location,p.construction_org,p.supervising_org,c.id item_id,c.project_id,t.id type_id,t.name item_type_name,c.item_data,c.state item_state,u.user_name create_by,c.create_at FROM
+    (SELECT * FROM `construction_item` ORDER BY id DESC ) c 
+	INNER JOIN `project` p ON c.project_id=p.id
+	INNER JOIN `project_type` pt ON p.project_type=pt.id
+	INNER JOIN `construction_item_type` t ON c.type_id=t.id
+	INNER JOIN `user` u ON c.create_by =u.id
+	WHERE 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and c.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and c.state=1 and c.create_by=#{create_by}
+	</if>
+	<if test="item_time != null and item_time !=''">
+			AND c.item_data=#{item_time}
+	</if>
+	<if test="type_id != null and type_id !=''">
+			AND c.type_id=#{type_id}
+	</if>
+	GROUP BY p.id
+	order by c.create_at desc 
+	</select>	
+	
+	
+	<!-- 工程进度列表 -->
+<select id="web_schedule_list" parameterType="java.util.Map" resultType="java.util.Map">
+	SELECT p.id project_id,p.name project_name,p.location,p.construction_org,p.supervising_org,t.name type_name,s.id schedule_id,s.schedule,s.meeting_data,s.state schedule_state,u.user_name create_by,s.create_at   FROM 
+	(SELECT * FROM `project_schedule` ORDER BY id DESC ) s
+	INNER JOIN `project` p ON s.project_id=p.id
+	INNER JOIN `user` u ON s.create_by=u.id
+	INNER JOIN `project_type` t on p.project_type=t.id
+	WHERE 1=1
+	<if test="name != null and name !=''">
+			and p.name like CONCAT('%',#{name},'%')
+	</if>
+	<if test="type_id != null and type_id !=''">
+			and p.project_type=#{type_id}
+	</if>
+	<if test="construction_org != null and construction_org !=''">
+			and p.construction_org like CONCAT('%',#{construction_org},'%')
+			
+	</if>
+	<if test="create_by == null or create_by ==''">
+			and s.state=2
+	</if>
+	<if test="create_by != null and create_by !=''">
+			and s.state=1 and s.create_by=#{create_by}
+	</if>
+	GROUP BY p.id
+	order by s.create_at desc 
+	</select>
+	
+	
+	
+</mapper>
